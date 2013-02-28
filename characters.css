@@ -1,0 +1,17 @@
+/* */
+[data-character=kakeru] {
+    color: red;
+}
+
+#avatar[data-character=kakeru][data-mood=base] {
+    background-image: url(characters/kakeru_1_0.png);
+}
+
+[data-position=left] {
+}
+
+[data-position=center] {
+}
+
+[data-position=right] {
+}
