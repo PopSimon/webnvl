@@ -1,0 +1,25 @@
+
+body {
+	background-color: grey;
+}
+@keyframes move {
+  from {
+    left: 0;
+    top: 0;
+  }
+  to {
+    left: 100px;
+    top: 100px;
+  }
+}
+
+@-webkit-keyframes move {
+  from {
+    left: 0;
+    top: 0;
+  }
+  to {
+    left: 100px;
+    top: 100px;
+  }
+}
