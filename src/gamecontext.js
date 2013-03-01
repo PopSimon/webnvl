@@ -5,6 +5,7 @@ function GameContext(scenario, viewport) {
     this.scenario = scenario;
     this.startDate = new Date();
     this.conditions = {};
+    this.variables = {};
 }
 GameContext.prototype = Object.create(Object.prototype, {
     elapsedTime: {
@@ -15,3 +16,5 @@ GameContext.prototype = Object.create(Object.prototype, {
         configurable: false
     }
 });
+
+var GAMECONTEXT = null;

@@ -4,12 +4,12 @@ function init() {
     // var textBox = $("#textbox");
     var viewport = new ViewPort();
     var scenario = new Scenario($(Scenario.prototype.selector));
-    var context = new GameContext(scenario, viewport);
-    var visitor = new Visitor(context);
+    GAMECONTEXT = new GameContext(scenario, viewport);
     
     function onSpaceDown() {
         console.log("next");
-        visitor.step();
+        var next = scenario.next();
+        viewport.handle(next);
     }
     
     function onBackspaceDown() {
