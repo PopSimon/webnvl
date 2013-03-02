@@ -2,7 +2,8 @@
 body {
 	background-color: grey;
 }
-@keyframes move {
+
+@keyframes slidein  {
   from {
     left: 0;
     top: 0;
@@ -13,7 +14,7 @@ body {
   }
 }
 
-@-webkit-keyframes move {
+@-webkit-keyframes slidein  {
   from {
     left: 0;
     top: 0;
@@ -21,5 +22,20 @@ body {
   to {
     left: 100px;
     top: 100px;
+  }
+}
+
+@-webkit-keyframes jump {
+  from {
+    transform: translate(0px,0px);
+    -webkit-transform: translate(0px,0px);
+  }
+  50% {
+    transform: translate(0px,100px);
+    webkit-transform: translate(0px,100px);
+  }
+  to {
+    transform: translate(0px,0px);
+    -webkit-transform: translate(0px,0px);
   }
 }

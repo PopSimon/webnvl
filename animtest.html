@@ -7,12 +7,58 @@
         <meta name="viewport" content="width=device-width">
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <link rel="stylesheet" href="animations.css"/>
+        <!-- <link rel="stylesheet" href="animations.css"/> -->
+        <style type="text/css">
+            /*#target2 {
+              -moz-animation-duration: 3s;
+              -webkit-animation-duration: 3s;
+              -moz-animation-name: slidein;
+              -webkit-animation-name: slidein;
+            }*/
+            
+            @-moz-keyframes move {
+              from {
+                -moz-transform: translate(-100%, 0);
+              }
+              
+              to {
+                -moz-transform: translate(0, 0);
+              }
+            }
+            
+            @-webkit-keyframes move {
+              from {
+                -webkit-transform: translate(100%, 0);
+              }
+              
+              to {
+                -webkit-transform: translate(0, 0);
+              }
+            }
+            
+            @-webkit-keyframes jump {
+              from {
+                transform: translate(0, 0);
+                -webkit-transform: translate(0, 0);
+              }
+              50% {
+                transform: translate(0, 100);
+                -webkit-transform: translate(0, -30%);
+              }
+              to {
+                transform: translate(0, 0);
+                -webkit-transform: translate(0, 0);
+              }
+            }
+        </style>
     </head>
     <body>
-		<div id="source" data-animation="move"></div>
+		<div id="source1" data-animation="#target(move 1s, jump 0.5s 2)"></div>
+        
+        <div id="source2" data-animation="#target(jump 0.5s infinite)"></div>
+        <div id="source3" data-stop-animations="#target"></div>
 		
-		<div id="target" style="width: 100px; height: 100px; background-color: green;">lóól</div>
+		<div id="target" style="width: 100px; height: 100px; background-color: green;">lÃ³Ã³l</div>
 		
         <script src="lib/jquery-2.0.0b1.js"></script>
         <script src="src/animation.js"></script>
