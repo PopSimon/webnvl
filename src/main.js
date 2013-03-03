@@ -1,15 +1,16 @@
 "use strict";
-
+var GAMECONTEXT = null;
 function init() {
     // var textBox = $("#textbox");
     var viewport = new ViewPort();
     var scenario = new Scenario($(Scenario.prototype.selector));
     GAMECONTEXT = new GameContext(scenario, viewport);
+    GAMECONTEXT.load();
+    scenario.init();
     
     function onSpaceDown() {
         console.log("next");
-        var next = scenario.next();
-        viewport.handle(next);
+        scenario.next();
     }
     
     function onBackspaceDown() {

@@ -4,7 +4,7 @@
 }
 
 #avatar[data-character=kakeru][data-mood=base] {
-    background-image: url(characters/kakeru_1_0.png);
+    background-image: url(../img/char/kakeru_1_0.png);
 }
 
 [data-position=left] {

@@ -1,12 +1,22 @@
 "use strict";
+
+function parentPrototype(object) {
+    var proto = Object.getPrototypeOf(object);
+    if (proto === Object.prototype) {
+        return proto;
+    } else {
+        return Object.getPrototypeOf(proto);
+    }
+}
+
 function NodeFactory(constructors) {
     if (constructors.length < 1) {
         throw Error("No constructors!");
     }
     
     return function (/* jQuery element */ element, /* jQuery element */ parent, /* Scenario */ scenario) {
-        for (var i = 0; i < this.constructors.length; ++i) {
-            var constructor = this.constructors[i];
+        for (var i = 0; i < constructors.length; ++i) {
+            var constructor = constructors[i];
             if (element.is(constructor.prototype.selector)) {
                 return new constructor(element, parent, scenario);
             }
@@ -16,17 +26,24 @@ function NodeFactory(constructors) {
 }
 
 
-function Scenario(/* jQuery element */ element, /* Save */ save) {
+function Scenario(/* jQuery element */ element) {
     this.root = element;
-    this.load(save);
+    this.history = null;//new History();
+    this.__visitor__ = null;//new Visitor(this.history);
 }
-Scenario.prototype = Object.create(Sequence.prototype, {
+Scenario.prototype = Object.create(Object.prototype, {
     constructor: { value: Scenario },
+    init: {
+        value: function () {
+            this.__visitor__ = new Visitor(this, this.history);
+            this.__visitor__.visit(this.first);
+        },
+        enumerable: true
+    },
     load: {
         value: function (/* String */ savename) {
             var history = window.localStorage[GAMECONTEXT.gameprefix + "_" + savename];
             this.history = history ? new History(history) : new History();
-            this.__visitor__ = new Visitor(this.history);
         },
         enumerable: true
     },
@@ -62,13 +79,13 @@ Scenario.prototype = Object.create(Sequence.prototype, {
     },
     get: {
         value: /* Node */ function (/* jQuery element | selector String */ element) {
-            element = this.getElement(element);
+            element = this.__getElement__(element);
             
             var parentElement = element.parent();
-            if (parentElement === this.root) {
+            if (parentElement.is(this.root)) {
                 // a chapter
                 return this.childFactory(element, this, this);
-            } else if (parentElement === this.history.chapter.element) {
+            } else if (parentElement.is(this.history.chapter.element)) {
                 // a child scene of the actual chapter
                 return this.history.chapter.childFactory(element, this.history.chapter, this);
             } else {
@@ -79,58 +96,69 @@ Scenario.prototype = Object.create(Sequence.prototype, {
         },
         enumerable: true
     },
-    jump: function (/* jQuery element | selector String */ element) {
-        /* Node */ var node = this.get(element);
-        this.visitor.visit(node);
+    first: {
+        get: /* Node */ function () {
+            return this.get(this.root.children().first());
+        },
+        enumerable: true
+    },
+    jump: {
+        value: function (/* jQuery element | selector String */ element) {
+            /* Node */ var node = this.get(element);
+            this.__visitor__.visit(node);
+        },
+        enumerable: true
     },
     /**
      * A visitor léptetése 
      * 
      */
-    next: /* Scene */ function () {
-        visitor.visit(this.getNext(visitor.actual));
-        
-        /* if (this.scene.next) {
-            return this.jump(this.scene.next);
-        } else {
-            var nextElement = this.scene.element.next();
-            if (nextElement.length === 1) {
-                return this.jump(nextElement);
+    next: {
+        value: /* Scene */ function () {
+            this.__visitor__.next();
+            
+            /* if (this.scene.next) {
+                return this.jump(this.scene.next);
             } else {
-                return this.next(node.parent);
+                var nextElement = this.scene.element.next();
+                if (nextElement.length === 1) {
+                    return this.jump(nextElement);
+                } else {
+                    return this.next(node.parent);
+                }
+            }*/
+        },
+        enumerable: true
+    },
+    check: {
+        value: /* boolean */ function (element, gameContext) {
+            var cstr = element.data("constrain");
+            if (cstr) {
+                return this.conditions[cstr](gameContext);
+            } else {
+                return true;
             }
-        }*/
+        },
+        enumerable: true
     },
-    
-    check: /* boolean */ function (element, gameContext) {
-        var cstr = element.data("constrain");
-        if (cstr) {
-            return this.conditions[cstr](gameContext);
-        } else {
-            return true;
-        }
-    },
-    getNext: function (/* Node */ node) {
-        /* Node */ var nextNode = node.next;
-        while (!nextNode.check(this.gameContext)) {
-            nextNode = nextNode.alt || nextNode.next;
-        }
-        return nextNode;
+    getNext: {
+        value: function (/* Node */ node) {
+            /* Node */ var nextNode = node.next;
+            while (!nextNode.check(this.gameContext)) {
+                nextNode = nextNode.alt || nextNode.next;
+            }
+            return nextNode;
+        },
+        enumerable: true
     },
     
     
     selector: {
-        value: "section",
+        value: "#scenario",
         enumerable: true
     },
-    factory: {
-        value: new NodeFactory([Chapter, CutScene]),
-        enumerable: true
-    },
-    release: {
-        value: function (/* Visitor */ visitor) {
-            this.index = 0;
-        },
+    childFactory: {
+        value: new NodeFactory([Chapter]),
         enumerable: true
     }
 });
@@ -160,8 +188,9 @@ Node.prototype = Object.create(Object.prototype, {
                     var nextElement = this.element.next();
                     if (nextElement.length === 1) {
                         this.__next__ = this.scenario.get(nextElement);
+                    } else {
+                        this.__next__ = this.parent.next;
                     }
-                    this.__next__ = this.parent.next;
                 }
             }
             return this.__next__;
@@ -182,9 +211,7 @@ Node.prototype = Object.create(Object.prototype, {
         enumerable: true
     },
     accept: {
-        value: function (/* Visitor */ visitor) {
-            visitor.actual = this;
-        },
+        value: function (/* Visitor */ visitor) {},
         enumerable: true
     },
     check: {
@@ -200,7 +227,11 @@ Node.prototype = Object.create(Object.prototype, {
     id: {
         get: /* string */ function () {
             if (!this.__id__) {
-                
+                var id = this.element.attr("id");
+                this.__id__ = id ? "#" + id :
+                    this.parent.id + " :nth-child(" 
+                    + (this.parent.element.children().index(this.element) + 1) 
+                    + ")";
             }
             return this.__id__;
         },
@@ -226,9 +257,22 @@ function Scene(element, parent, scenario) {
     Node.call(this, element, parent, scenario);
 }
 Scene.prototype = Object.create(Node.prototype, {
-    constructor: { value: Scene }
-    handler: { value: SceneHandler, enumerable: true }
+    constructor: { value: Scene },
+    handler: { value: SceneHandler, enumerable: true },
     selector: { value: "p", enumerable: true },
+    chapter: {
+        get: /* */ function () {
+            return this.parent;
+        },
+        enumerable: true
+    },
+    accept: {
+        value: function (/* Visitor */ visitor) {
+            parentPrototype(this).accept(visitor);
+            visitor.history.add(this);
+        },
+        enumerable: true
+    }
 });
 
 
@@ -242,12 +286,18 @@ Chapter.prototype = Object.create(Fork.prototype, {
     accept: {
         value: function (/* Visitor */ visitor) {
             visitor.visit(this.childFactory(
-                this.element.children().first()));
+                this.element.children().first(), this, this.scenario));
         },
         enumerable: true
     },
     childFactory: {
         value: NodeFactory([Scene]),
+        enumerable: true
+    },
+    chapter: {
+        get: /* */ function () {
+            return this;
+        },
         enumerable: true
     }
 });

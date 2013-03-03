@@ -12,9 +12,12 @@ GameContext.prototype = Object.create(Object.prototype, {
         get: function () {
             return new Date(Date.now() - this.startDate);
         },
-        enumerable: true,
-        configurable: false
+        enumerable: true
+    },
+    load: {
+        value: function () {
+            this.scenario.load();
+        },
+        enumerable: true
     }
 });
-
-var GAMECONTEXT = null;

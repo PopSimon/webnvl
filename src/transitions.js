@@ -1,0 +1,40 @@
+"use strict";
+
+var TypeWriter = {
+    __handles__: [],
+    out: function (element) {
+        element.empty();
+    },
+    in: function (element, content, time) {
+        var text = content.text();
+        var index = 0;
+        var written = "";
+        content.empty();
+        element.append(content);
+        
+        function animate() {
+            if (index <= text.length) {
+                content.text(written);
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        var handle = setInterval((function () {
+            if (text.length <= index) {
+                clearInterval(handle);
+                this.__handles__.splice(this.__handles__.indexOf(handle), 1);
+                return;
+            }
+            written += text.charAt(index);
+            ++index;
+        }).bind(this), time);
+        this.__handles__.push(handle);
+        requestAnimationFrame(animate);
+    },
+    clear: function () {
+        for (var i=0; i < this.__handles__.length; ++i) {
+            clearInterval(this.__handles__[i]);
+        }
+        this.__handles__.length = 0;
+    }
+};

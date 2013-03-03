@@ -89,7 +89,9 @@ ViewPort.prototype = Object.create(Object.prototype, {
             return this.__text__.contents();
         },
         set: function (/* jQuery element */ element) {
-            this.__text__.empty().append(element.clone());
+            TypeWriter.clear();
+            TypeWriter.out(this.__text__);
+            TypeWriter.in(this.__text__, element.clone(), 16);
         },
         enumerable: true,
         configurable: false
@@ -143,8 +145,12 @@ ViewPort.prototype = Object.create(Object.prototype, {
         value: function () {
             this.textBox.toggleClass("hidden");
         },
-        writable: false,
-        enumerable: true,
-        configurable: false
+        enumerable: true
+    },
+    handle: {
+        value: function (/* Node */ node) {
+            node.handler.handle(node, this);
+        },
+        enumerable: true
     }
 });

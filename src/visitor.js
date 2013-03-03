@@ -1,5 +1,5 @@
 function History(serialised) {
-    this.scene = null;
+    this.actual = null;
     this.chapter = null;
     this.__ids__ = [];
     this.visited = [];
@@ -11,12 +11,10 @@ function History(serialised) {
         for (var i = visited.length - 1; i >= 0 ; --i) {
             this.add(visited[i]);
         }
-    } else {
-        this.add(GAMECONTEXT.scenario.start);
     }
 }
 History.prototype = {
-    max: 10,
+    MAX: 3,
     __addVisited__: function (node) {
         if (typeof node == "string") {
             this.__ids__.unshift(node);
@@ -25,12 +23,13 @@ History.prototype = {
             this.__ids__.unshift(node.id);
             this.visited.unshift(node);
         }
-        if (this.__ids__.length > max) this.__ids__.length = max;
-        if (this.visited.length > max) this.visited.length = max;
+        if (this.__ids__.length > this.MAX) this.__ids__.length = this.MAX;
+        if (this.visited.length > this.MAX) this.visited.length = this.MAX;
     },
     add: function (/* Node */ node) {
         node = typeof node == "string" ? GAMECONTEXT.scenario.get(node) : node;
-        this.scene = node;
+        this.actual = node;
+        this.chapter = node.chapter;
         this.__addVisited__(node);
     },
     toJSON: function () {
@@ -38,29 +37,27 @@ History.prototype = {
     }
 };
 
-function Visitor(history) {
-    /* GameContext */ this.context = gameContext;
+function Visitor(scenario, history) {
+    /* Scenario */ this.scenario = scenario;
     /* History */ this.history = history || new History();
-    /* Node */ this.actual = null;
 }
 Visitor.prototype = Object.create(Object.prototype, {
     constructor: { value: Visitor },
     visit: { 
         value: function (node) {
-            this.history.add(node);
+            GAMECONTEXT.viewport.handle(node);
             node.accept(this);
         },
         enumerable: true
     },
     next: {
-        value: function () {
-            this.visit(this.actual.next);
-            GAMECONTEXT.viewport.handle(this.actual);
+        value: /* Node */ function () {
+            this.visit(this.scenario.getNext(this.actual));
         },
         enumerable: true
     },
     actual: {
-        get: function () {
+        get: /* Node */ function () {
             return this.history.actual;
         },
         enumerable: true

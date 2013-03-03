@@ -7,50 +7,44 @@
         <meta name="viewport" content="width=device-width">
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <link rel="stylesheet" href="main.css"/>
-        <link rel="stylesheet" href="effects.css"/>
-        <link rel="stylesheet" href="backgrounds.css"/>
-        <link rel="stylesheet" href="characters.css"/>
+        <link rel="stylesheet" href="style/main.css"/>
+        <link rel="stylesheet" href="style/effects.css"/>
+        <link rel="stylesheet" href="style/backgrounds.css"/>
+        <link rel="stylesheet" href="style/characters.css"/>
     </head>
     <body>
         <!-- Content -->
-        <div id="scenario">
-            <section id="part1">
-                <article id="scene1">
-                    <!-- a cut -->
-                    <div>
-                        <p data-character="kakeru" data-mood="base">Ohhayyooo~!!</p>
-                        <p data-character="Character-B">Yaaaay!!</p>
-                    </div>
-                    <div>
-                        <p data-character="kakeru" data-mood="base">Ohhayyooo~!!</p>
-                        <p data-character="Character-B">Yaaaay!!</p>
-                    </div>
-                </article>
-                <article id="scene2">
-                    <div>
-                        <p data-character="Character-C">Helló vörld!!!</p>
-                        <p data-character="Character-B">Kavaly :3</p>
-                    </div>
-                </article>
-            </section>
-           <section id="part1">
-                <article id="scene1">
-                    <div>
-                        <p data-character="kakeru">Második fejezet</p>
-                        <p data-character="Character-B">Kiko</p>
-                    </div>
-                </article>
-                <article id="scene2">
-                    <div>
-                        <p data-character="Character-C">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas varius diam nunc. Etiam congue hendrerit sapien at aliquam. Nam sem erat, laoreet in tincidunt sit amet, mattis et sem. Pellentesque diam orci, vestibulum ut fermentum a, tempus ac dolor. In hac habitasse platea dictumst. In turpis nunc, facilisis non semper ac, dapibus id lectus. Nam dolor lacus, ultricies vitae posuere nec, luctus nec velit. In gravida elementum lectus at ullamcorper. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed ut sem velit. Nullam pharetra mollis nibh id venenatis.
-                        </p>
-                        <p data-character="Character-B">lórem ipsumma :==DD</p>
-                    </div>
-                </article>
-            </section>
-        </div>
+        <section id="scenario">
+            <article id="chapter1">
+                <p data-character="kakeru" data-mood="base">Ohhayyooo~!!</p>
+                <p data-character="Character-B">Yaaaay!!</p>
+                <p data-character="Character-C">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas varius diam nunc. Etiam congue hendrerit sapien at aliquam. Nam sem erat, laoreet in tincidunt sit amet, mattis et sem. Pellentesque diam orci, vestibulum ut fermentum a, tempus ac dolor. In hac habitasse platea dictumst. In turpis nunc, facilisis non semper ac, dapibus id lectus. Nam dolor lacus, ultricies vitae posuere nec, luctus nec velit. In gravida elementum lectus at ullamcorper. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed ut sem velit. Nullam pharetra mollis nibh id venenatis.
+                </p>
+                <p data-character="kakeru" data-mood="base">Ohhayyooo~!!</p>
+                <div class="stage">
+                    <img id="kotori" src="img/char/kotori_1_0_0.png" />
+                </div>
+                <p data-character="Character-B">Yaaaay!!</p>
+                <div class="stage" data-animate="#kotori(jump 0.5s infinite)"></div>
+            </article>
+            <article id="chapter2">
+                <p data-character="Character-C">Helló vörld!!!</p>
+                <div class="stage" data-stop-animations="#kotori"></div>
+                <p data-character="Character-B">Kavaly :3</p>
+                <div class="stage" data-remove="#kotori"></div>
+            </article>
+            <article id="chapter3">
+                <p data-character="kakeru">Második fejezet</p>
+                <p data-character="Character-B">Kiko</p>
+            </article>
+            <article id="chapter4">
+                <p data-character="Character-C">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas varius diam nunc. Etiam congue hendrerit sapien at aliquam. Nam sem erat, laoreet in tincidunt sit amet, mattis et sem. Pellentesque diam orci, vestibulum ut fermentum a, tempus ac dolor. In hac habitasse platea dictumst. In turpis nunc, facilisis non semper ac, dapibus id lectus. Nam dolor lacus, ultricies vitae posuere nec, luctus nec velit. In gravida elementum lectus at ullamcorper. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed ut sem velit. Nullam pharetra mollis nibh id venenatis.
+                </p>
+                <p data-character="Character-B">lórem ipsumma :==DD</p>
+            </article>
+        </section>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
@@ -60,7 +54,7 @@
                 <div id="avatar"></div>
                 <div id="text"><p></p></div>
             </div>
-            <div id="choices">
+            <!--<div id="choices">-->
                 <ul>
                     <li><a href="#">Yes, we can!</a></li>
                     <li><a href="#">Nope.avi</a></li>
@@ -69,6 +63,7 @@
         </div>
 
         <script src="lib/jquery-2.0.0b1.js"></script>
+        <script src="src/transitions.js"></script>
         <script src="src/gamecontext.js"></script>
         <script src="src/visitor.js"></script>
         <script src="src/handlers.js"></script>
