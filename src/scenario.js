@@ -291,7 +291,7 @@ Chapter.prototype = Object.create(Fork.prototype, {
         enumerable: true
     },
     childFactory: {
-        value: NodeFactory([Scene]),
+        value: NodeFactory([Scene, StageDesc]),
         enumerable: true
     },
     chapter: {
@@ -302,4 +302,29 @@ Chapter.prototype = Object.create(Fork.prototype, {
     }
 });
 
-
+function StageDesc(element, parent, scenario) {
+    Scene.call(this, element, parent, scenario);
+}
+StageDesc.prototype = Object.create(Scene.prototype, {
+    constructor: { value: StageDesc },
+    handler: { value: StageHandler, enumerable: true },
+    selector: { value: "div.stage", enumerable: true },
+    accept: {
+        value: function (/* Visitor */ visitor) {
+            visitor.visit(this.scenario.getNext(this));
+        },
+        enumerable: true
+    },
+    characters: {
+        get: /* jQuery element */ function () {
+            return this.element.children(".char");
+        },
+        enumerable: false
+    },
+    chapter: {
+        get: /* */ function () {
+            return this;
+        },
+        enumerable: true
+    }
+});

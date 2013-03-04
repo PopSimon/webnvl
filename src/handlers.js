@@ -10,7 +10,7 @@ TextHandler = {
     }
 };
 
-StageHandler = {
+AvatarHandler = {
     handle: function (node, viewport) {
         var character = node.element.data("character");
         var mood = node.element.data("mood");
@@ -19,6 +19,23 @@ StageHandler = {
     }
 };
 
+CharSpritesHandler = {
+    handle: function (node, viewport) {
+        var element = node.characters;
+        
+        if (element.length) {
+            if (element.data("clear")) {
+                viewport.stage.characters.clear();
+            }
+            
+            var rtarg = element.data("remove")
+            if (rtarg) { 
+                viewport.stage.characters.remove(rtarg);
+            }
+            viewport.stage.characters.add(element.children("img"));
+        }
+    }
+};
 
 function HandlerGroup(handlers) {
     this.handlers = handlers;
@@ -28,14 +45,18 @@ HandlerGroup.prototype = Object.create(Object.prototype, {
     handle: {
         value: function (node, viewport) {
             for (var i = 0; i < this.handlers.length; ++i) {
-                node = this.handlers[i].handle(node, viewport);
+                this.handlers[i].handle(node, viewport);
             }
         }
     }
 });
 
 var SceneHandler = new HandlerGroup([
-    TextHandler
+    TextHandler, AvatarHandler
+]);
+
+StageHandler = new HandlerGroup([
+    CharSpritesHandler
 ]);
 
 var ChapterHandler = {

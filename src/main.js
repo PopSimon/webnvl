@@ -8,22 +8,24 @@ function init() {
     GAMECONTEXT.load();
     scenario.init();
     
-    function onSpaceDown() {
+    function onSpaceDown(e) {
+        e.preventDefault();
         console.log("next");
         scenario.next();
     }
     
-    function onBackspaceDown() {
+    function onBackspaceDown(e) {
+        e.preventDefault();
         viewport.toggleUI();
     }
 
     function globalKeyDownListener(e) {
         switch (e.keyCode) {
             case 32: // space
-                onSpaceDown();
+                onSpaceDown(e);
             break;
             case 8: // backspace
-                onBackspaceDown();
+                onBackspaceDown(e);
             default:
             break;
         }

@@ -22,8 +22,10 @@
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas varius diam nunc. Etiam congue hendrerit sapien at aliquam. Nam sem erat, laoreet in tincidunt sit amet, mattis et sem. Pellentesque diam orci, vestibulum ut fermentum a, tempus ac dolor. In hac habitasse platea dictumst. In turpis nunc, facilisis non semper ac, dapibus id lectus. Nam dolor lacus, ultricies vitae posuere nec, luctus nec velit. In gravida elementum lectus at ullamcorper. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed ut sem velit. Nullam pharetra mollis nibh id venenatis.
                 </p>
                 <p data-character="kakeru" data-mood="base">Ohhayyooo~!!</p>
-                <div class="stage">
-                    <img id="kotori" src="img/char/kotori_1_0_0.png" />
+                <div class="stage" data-clear="clear">
+                    <div class="char">
+                        <img id="kotori" src="img/char/kotori_1_0_0.bmp" />
+                    </div>
                 </div>
                 <p data-character="Character-B">Yaaaay!!</p>
                 <div class="stage" data-animate="#kotori(jump 0.5s infinite)"></div>
@@ -32,7 +34,11 @@
                 <p data-character="Character-C">Helló vörld!!!</p>
                 <div class="stage" data-stop-animations="#kotori"></div>
                 <p data-character="Character-B">Kavaly :3</p>
-                <div class="stage" data-remove="#kotori"></div>
+                <div class="stage" data-remove="#kotori">
+                    <div class="char" data-clear="clear">
+                        <img id="kakeru" src="img/char/kakeru_1_0.png" />
+                    </div>
+                </div>
             </article>
             <article id="chapter3">
                 <p data-character="kakeru">Második fejezet</p>
@@ -49,7 +55,12 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
         <div id="viewport" data-background="base" width="1024" height="768">
-            <div id="characters"></div>
+            <div id="stage">
+                <div id="background"></div>
+                <div id="characters"></div>
+                <div id="effects"></div>
+            </div>
+            
             <div id="textbox">
                 <div id="avatar"></div>
                 <div id="text"><p></p></div>

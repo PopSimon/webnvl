@@ -20,11 +20,47 @@ Avatar.prototype = Object.create(Object.prototype, {
     }
 });
 
+
+function SpriteGroup(/* jQuery element */ element) {
+    this.__element__ = element;
+}
+SpriteGroup.prototype = Object.create(Object.prototype, {
+    constructor: { value: SpriteGroup },
+    clear: {
+        value: function () {
+            this.__element__.empty();
+        },
+        enumerable: true
+    },
+    add: {
+        value: function (/* jQuery element(s) */ elements) {
+            this.__element__.append(elements);
+        },
+        enumerable: true
+    },
+    remove: {
+        value: function (/* String */ selector) {
+            this.__element__.children().remove(selector);
+        },
+        enumerable: true
+    }
+});
+
+function Stage(/* jQuery element */ element) {
+    this.background = new SpriteGroup(element.find("#background"));
+    this.characters = new SpriteGroup(element.find("#characters"));
+    this.effects = new SpriteGroup(element.find("#effects"));
+}
+Stage.prototype = Object.create(Object.prototype, {
+    constructor: { value: Stage }
+});
+
 function ViewPort() {
     this.element = $("#viewport");
     this.__choices__ = $("#choices");
     this.textBox = $("#textbox");
     this.__text__ = $("#text");
+    this.stage = new Stage($("#stage"));
     this._avatarField = $("#avatar");
     this._ambientField = null; //$("#ambient");
     this.oWidth = this.element.attr("width");
