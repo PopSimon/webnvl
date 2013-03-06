@@ -9,22 +9,41 @@ function parentPrototype(object) {
     }
 }
 
+
+
+
+
+
 function Scenario(/* jQuery element */ element) {
-    $.ajax({
-        type: "GET",
-        url: "overview.xml",
-        dataType: "xml",
-        success: (function(xml) {
-            this.setOverview(xml);
-        }).bind(this)
-    });
+    this.characters = {};
+    var charlist = JSON.parse(DATA.META.CHARACTERS);
+    for (var i=0; i < charlist.length; ++i) {
+        var character = charlist[i];
+        this.characters[character.id] = character;
+    }
     
-    var overview = 
-    this.chapter = null;
-    this.history = null;//new History();
+    this.chapters = {};
 }
 Scenario.prototype = {
-    setOverview: function (xml) {
-        var overview = $.parseXML(xml);
+    getChapter: function (chapterid) {
+        if (!this.chapters[chapterid]) {
+            var raw = DATA.CHAPTERS[chapterid];
+            if (!raw) {
+                return null;
+            }
+            this.chapters[chapterid] = JSON.parse(raw);
+        }
+        
+        return this.chapters[chapterid];
+    },
+    getScene: function (chapterid, sceneid) {
+        var chapter = this.getChapter(chapterid);
+        var scene = chapter.content[sceneid];
+        return scene;
+    },
+    getText: function (chapterid, sceneid, textid) {
+        var scene = this.getScene(chapterid, sceneid);
+        var text = scene.content[textid];
+        return text;
     }
 }

@@ -6,56 +6,54 @@
 
 var handleScene = (function () {
     var TextHandler = {
-        handleName: function (element) {
-            var charid = element.attr("char");
-            if (charid) {
-                var character = GAMECONTEXT.characters[charid];
+        handleName: function (textNode) {
+            if (textNode.character) {
+                var character = GAMECONTEXT.characters[textNode.character];
                 GAMECONTEXT.viewport.setSpeaker(character);
             } else {
                 GAMECONTEXT.viewport.setSpeaker(null);
             }
         },
-        handleAvatar: function (element) {
-            var charid = element.attr("char");
-            var avatar = element.attr("avatar");
-            if (charid && avatar) {
-                var character = GAMECONTEXT.characters[charid];
-                GAMECONTEXT.viewport.setAvatar(character, avatar);
+        handleAvatar: function (textNode) {
+            if (textNode.character && textNode.avatar) {
+                var character = GAMECONTEXT.characters[textNode.character];
+                GAMECONTEXT.viewport.setAvatar(character, textNode.avatar);
             } else {
                 GAMECONTEXT.viewport.setAvatar(null, null);
             }
         },
-        handle: function (element) {
-            GAMECONTEXT.viewport.setText(element.text());
+        handle: function (textNode) {
+            GAMECONTEXT.viewport.setText(textNode.text);
         }
     };
 
     var StageHandler = {
-        handle: function (element) {
-            if (element.attr("clear")) {
+        handle: function (stage) {
+            if (stage.clear) {
                 this.clearCharacterSprites();
             }
             
-            element.find("remove").each((function (index, element) {
-                this.removeCharacterSprite(element);
-            }).bind(this));
+            if (stage.remove && stage.remove.length > 0) {
+                this.removeCharacterSprites(stage.remove);
+            }
             
-            element.find("add").each((function (index, element) {
-                this.addCharacterSprite(element);
-            }).bind(this));
+            if (stage.add && stage.add.length > 0) {
+                this.addCharacterSprites(stage.add);
+            }
         },
-        addCharacterSprite: function (element) {
-            var sprite = new Sprite(
-                element.attr("id"), element.attr("src"), element.attr("class"), 
-                element.attr("left"), element.attr("top"), element.attr("fade"), 
-                element.attr("animation"));
-            GAMECONTEXT.viewport.stage.add(sprite);
+        addCharacterSprites: function (spriteDescs) {
+            var sprites = {};
+            for (var i = 0; i < spriteDescs.length; ++i) {
+                var s = spriteDescs[i];
+                sprites.[s.id] = new CharacterSprite(s);
+            }
+            GAMECONTEXT.viewport.stage.characters.add(sprites);
         },
-        removeCharacterSprite: function (element) {
-            GAMECONTEXT.viewport.stage.remove(element.attr("id"), element.attr("fade"));
+        removeCharacterSprite: function (spriteIds) {
+            GAMECONTEXT.viewport.stage.characters.remove(spriteIds);
         },
         clearCharacterSprites: function () {
-            GAMECONTEXT.viewport.stage.clear();
+            GAMECONTEXT.viewport.stage.characters.clear();
         }
     };
     
