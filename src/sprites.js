@@ -12,11 +12,13 @@ function Sprite(spriteDesc) {
 	this.width = spriteDesc.width;
 	this.height = spriteDesc.height;
 	this.transition = spriteDesc.transition;
+	
+	this.element = this.createElement();
 }
 Sprite.prototype = {
 	constructor: Sprite,
 	jproto: $('<img src="img/missing.jpg"/>'),
-	toDOMElement: function () {
+	createElement: function () {
 		var element = this.jproto.clone();
 		element.attr("id", this.id);
 		element.attr("src", this.src);
