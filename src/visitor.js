@@ -1,8 +1,14 @@
 function History(serialised) {
-    this.actual = null;
-    this.chapter = null;
-    this.__ids__ = [];
-    this.visited = [];
+    this.screen = serialised ? serialised.screen : null;
+    this.section = serialised ? serialised.section : null;
+    this.chapter = serialised ? serialised.chapter : null;
+    
+    this.visited = serialised ? serialised.visited : [];
+    this.cache = []
+    
+    for (var i = 0; i < this.visited.length; ++i) {
+        
+    }
     
     if (serialised) {
         var visited = JSON.parse(serialised);

@@ -18,8 +18,28 @@ function Scenario(/* jQuery element */ element) {
 	}
 	
 	this.chapters = {};
+    
+    this.chapter = null;
+    this.sequence = null;
+    this.screen = null;
 }
 Scenario.prototype = {
+    get: function (id) {
+        var ids = id.split(".");
+        switch (ids.length) {
+            case 1:
+                return this.getChapter(ids[0]);
+            break;
+            case 2:
+                return this.getSequence(ids[0], ids[1]);
+            break;
+            case 3:
+                return this.getScreen(ids[0], ids[1], ids[2]);
+            break;
+            default: 
+                throw Error("Bad id!");
+        }
+    },
 	getChapter: function (chapterid) {
 		var chapter = this.chapters[chapterid];
 		if (!chapter) {
@@ -27,11 +47,11 @@ Scenario.prototype = {
 		}
 		return chapter;
 	},
-	getScene: function (chapterid, sceneid) {
+	getSequence: function (chapterid, sceneid) {
 		var chapter = this.getChapter(chapterid);
 		return chapter.content[i];
 	},
-	getText: function (chapterid, sceneid, textid) {
+	getScreen: function (chapterid, sceneid, textid) {
 		var text = this.getScene(chapterid, sceneid);
 		return text.content[i];
 	}
