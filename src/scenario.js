@@ -9,41 +9,30 @@ function parentPrototype(object) {
     }
 }
 
-
-
-
-
-
 function Scenario(/* jQuery element */ element) {
-    this.characters = {};
-    var charlist = JSON.parse(DATA.META.CHARACTERS);
-    for (var i=0; i < charlist.length; ++i) {
-        var character = charlist[i];
-        this.characters[character.id] = character;
-    }
-    
-    this.chapters = {};
+	this.characters = {};
+	var charlist = JSON.parse(DATA.META.CHARACTERS);
+	for (var i = 0; i < charlist.length; ++i) {
+		var character = charlist[i];
+		this.characters[character.id] = character;
+	}
+	
+	this.chapters = {};
 }
 Scenario.prototype = {
-    getChapter: function (chapterid) {
-        if (!this.chapters[chapterid]) {
-            var raw = DATA.CHAPTERS[chapterid];
-            if (!raw) {
-                return null;
-            }
-            this.chapters[chapterid] = JSON.parse(raw);
-        }
-        
-        return this.chapters[chapterid];
-    },
-    getScene: function (chapterid, sceneid) {
-        var chapter = this.getChapter(chapterid);
-        var scene = chapter.content[sceneid];
-        return scene;
-    },
-    getText: function (chapterid, sceneid, textid) {
-        var scene = this.getScene(chapterid, sceneid);
-        var text = scene.content[textid];
-        return text;
-    }
-}
+	getChapter: function (chapterid) {
+		var chapter = this.chapters[chapterid];
+		if (!chapter) {
+			this.chapter[chapterid] = chapter = DATA.CHAPTERS[chapterid];
+		}
+		return chapter;
+	},
+	getScene: function (chapterid, sceneid) {
+		var chapter = this.getChapter(chapterid);
+		return chapter.content[i];
+	},
+	getText: function (chapterid, sceneid, textid) {
+		var text = this.getScene(chapterid, sceneid);
+		return text.content[i];
+	}
+};
