@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<chapter id="1" name-hu="Meméarcok">
+    <characters>
+        <character id="peti" name="Peti" name-en="Peter"/>
+        <character id="mate" name="Máté" name-en="Matt"/>
+    </characters>
+
+    <scene>
+        <stage>
+            <add id="peti" src="img/char/peti.png"/>
+        </stage>
+        <background src="default.jpg" />
+        <ambient src="morning" />
+        
+        <text char="peti" avatar="default">Ohayo!~</text>
+    </scene>
+    <scene>
+        <text char="mate" avatar="default">'Reggelt!</text>
+    </scene>
+</chapter>

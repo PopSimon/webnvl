@@ -4,66 +4,69 @@
 //    }
 //};
 
-TextHandler = {
-    handle: function (node, viewport) {
-        viewport.text = node.element;
-    }
-};
+var handleScene = (function () {
+    var TextHandler = {
+        handleName: function (textNode) {
+            if (textNode.character) {
+                var character = GAMECONTEXT.characters[textNode.character];
+                GAMECONTEXT.viewport.setSpeaker(character);
+            } else {
+                GAMECONTEXT.viewport.setSpeaker(null);
+            }
+        },
+        handleAvatar: function (textNode) {
+            if (textNode.character && textNode.avatar) {
+                var character = GAMECONTEXT.characters[textNode.character];
+                GAMECONTEXT.viewport.setAvatar(character, textNode.avatar);
+            } else {
+                GAMECONTEXT.viewport.setAvatar(null, null);
+            }
+        },
+        handle: function (textNode) {
+            GAMECONTEXT.viewport.setText(textNode.text);
+        }
+    };
 
-AvatarHandler = {
-    handle: function (node, viewport) {
-        var character = node.element.data("character");
-        var mood = node.element.data("mood");
-
-        viewport.avatar = new Avatar(character, mood);
-    }
-};
-
-CharSpritesHandler = {
-    handle: function (node, viewport) {
-        var element = node.characters;
-        
-        if (element.length) {
-            if (element.data("clear")) {
-                viewport.stage.characters.clear();
+    var StageHandler = {
+        handle: function (stage) {
+            if (stage.clear) {
+                this.clearCharacterSprites();
             }
             
-            var rtarg = element.data("remove")
-            if (rtarg) { 
-                viewport.stage.characters.remove(rtarg);
+            if (stage.remove && stage.remove.length > 0) {
+                this.removeCharacterSprites(stage.remove);
             }
-            viewport.stage.characters.add(element.children("img"));
-        }
-    }
-};
-
-function HandlerGroup(handlers) {
-    this.handlers = handlers;
-}
-HandlerGroup.prototype = Object.create(Object.prototype, {
-    constructor: { value: HandlerGroup },
-    handle: {
-        value: function (node, viewport) {
-            for (var i = 0; i < this.handlers.length; ++i) {
-                this.handlers[i].handle(node, viewport);
+            
+            if (stage.add && stage.add.length > 0) {
+                this.addCharacterSprites(stage.add);
             }
+        },
+        addCharacterSprites: function (spriteDescs) {
+            var sprites = {};
+            for (var i = 0; i < spriteDescs.length; ++i) {
+                var s = spriteDescs[i];
+                sprites.[s.id] = new CharacterSprite(s);
+            }
+            GAMECONTEXT.viewport.stage.characters.add(sprites);
+        },
+        removeCharacterSprite: function (spriteIds) {
+            GAMECONTEXT.viewport.stage.characters.remove(spriteIds);
+        },
+        clearCharacterSprites: function () {
+            GAMECONTEXT.viewport.stage.characters.clear();
         }
+    };
+    
+    function handleBackground(element) {
+        GAMECONTEXT.viewport.setBackground(element.attr("src"), element.attr("fade"));
     }
-});
-
-var SceneHandler = new HandlerGroup([
-    TextHandler, AvatarHandler
-]);
-
-StageHandler = new HandlerGroup([
-    CharSpritesHandler
-]);
-
-var ChapterHandler = {
-    handle: function (visitor, node) {
-        var ambient = node.element.children("audio.ambient");
-        if (ambient.length) {
-            GAMECONTEXT.viewport.ambient = ambient;
-        }
+    
+    return function (element) {
+        var bg = element.find("background");
+        if (background) handleBackground(bg);
+        var stage = element.find("stage");
+        if (stage) StageHandler.handle(stage);
+        var text = element.find("text");
+        if (text) StageHandler.handle(text);
     }
-};
+})();
