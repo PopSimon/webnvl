@@ -47,8 +47,8 @@ var SequenceController = {
         Scenario.jump(sequence.next);
     },
     handleNext: function (sequence) {
-        if (sequence.hasNext) {
-            var screen = sequence.next();
+        if (sequence.hasNextScreen) {
+            var screen = sequence.nextScreen;
             screen.handler.handle(screen);
         } else {
             this.handleExit(sequence);

@@ -4,31 +4,48 @@ function Id(idstring) {
     this.chapter = part[0];
     this.routepart = part[1];
     this.scene = part[3];
-    
 }
 
+/*
+ *
+ *
+ */
+ 
 function RoutePart(node) {
     this.__node__ = node;
 }
-RoutePart.prototype = {
+RoutePart.prototype = Object.create(RoutePart.prototype, {
+    constructor: { value: Sequence },
+    next: {
+        get: function () {
+            return this.__node__.next;
+        },
+        enumerable: true
+    }
 }
-
-
 
 
 function Sequence(node) {
     RoutePart.call(this, node);
     this.__sceneindex__ = 0;
+    this.next = this.__node__.next;
 }
 Sequence.prototype = Object.create(RoutePart.prototype, {
-    next: {
-        value: function () {
-            if (this.__sceneindex__ < this.__node__.content.length - 1) {
-                this.routing.scene = this.SceneFactory(this.__node__.content[this.__sceneindex__]);
-            } else {
-                this.routing.jump(this.__node__.next);
-            }
+    constructor: { value: Sequence },
+    hasNextScreen: function () {
+        get: function () {
+            return this.__sceneindex__ < this.__node__.content.length - 1;
         },
+        enumerable: true
+    },
+    nextScreen: function () {
+        get: function () {
+            return this.SceneFactory(this.__node__.content[++this.__sceneindex__]);
+        },
+        enumerable: true
+    },
+    controller: {
+        value: SequenceController,
         enumerable: true
     }
 });
@@ -61,10 +78,23 @@ Branching.prototype = Object.create(RoutePart.prototype, {
             return valid;
         },
         enumerable: true
+    },
+    controller: {
+        value: FirstMatchingController,
+        enumerable: true
     }
 });
 
-
+function Selection(node) {
+    Branching.call(this, node);
+}
+Selection.prototype = Object.create(RoutePart.prototype, {
+    constructor: { value: Selection },
+    controller: {
+        value: SelectionController,
+        enumerable: true
+    }
+}
 
 function RoutePartFactory(node) {
     switch (node.type) {
@@ -72,6 +102,8 @@ function RoutePartFactory(node) {
             return new Sequence(node);
         case "br":
             return new Branching(node);
+        case "sel":
+            return new Selection(node);
         default: throw Error("Unknown type: " + node);
     }
 }
