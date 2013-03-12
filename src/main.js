@@ -3,7 +3,7 @@ var GAMECONTEXT = null;
 function init() {
     // var textBox = $("#textbox");
     var viewport = new ViewPort();
-    var scenario = new Scenario($(Scenario.prototype.selector));
+    var scenario = new Scenario();
     GAMECONTEXT = new GameContext(scenario, viewport);
     GAMECONTEXT.load();
     scenario.init();

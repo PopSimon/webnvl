@@ -2,11 +2,24 @@
 
 "use strict";
 
-function Id(idstring) {
-    var parts = id.split(".");
-    this.chapter = parts[0];
-    this.routepart = parts[1];
-    this.scene = parts[3];
+function Id(id) {
+    var parts = id.split(":");
+    switch (parts.length) {
+        case 1:
+            this.chapter = parts[0];
+            this.routepart = parts[1];
+            this.scene = parts[3];
+        case 2:
+            this.chapter = parts[0];
+            this.routepart = parts[1];
+            this.scene = parts[3];
+        case 3:
+            this.chapter = parts[0];
+            this.routepart = parts[1];
+            this.scene = parts[3];
+        default: throw Error("Bad id: " + id);
+    }
+
 }
 
 /*
@@ -21,7 +34,7 @@ function RoutePart(node) {
 }
 RoutePart.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Sequence }
-}
+});
 
 
 function Sequence(node) {
@@ -30,20 +43,30 @@ function Sequence(node) {
 }
 Sequence.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Sequence },
-    hasNextScreen: function () {
+    type: {
+        value: "seq",
+        enumerable: true
+    },
+    hasNextScreen: {
         get: function () {
-            return this.__sceneindex__ < this.__node__.content.length - 1;
+            return this.__sceneindex__ < this.__node__.c.length - 1;
         },
         enumerable: true
     },
-    nextScreen: function () {
+    firstScreen: {
         get: function () {
-            return this.SceneFactory(this.__node__.content[++this.__sceneindex__]);
+            return this.SceneFactory(this.__node__.c[0]);
         },
         enumerable: true
     },
-    controller: {
-        value: SequenceController,
+    nextScreen: {
+        get: function () {
+            return this.SceneFactory(this.__node__.c[++this.__sceneindex__]);
+        },
+        enumerable: true
+    },
+    handler: {
+        value: SequenceHandler,
         enumerable: true
     }
 });
@@ -59,6 +82,10 @@ function Branching(node) {
 }
 Branching.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Branching },
+    type: {
+        value: "br",
+        enumerable: true
+    },
     validOptions: {
         get: function () {
             var valid = [];
@@ -77,8 +104,8 @@ Branching.prototype = Object.create(RoutePart.prototype, {
         },
         enumerable: true
     },
-    controller: {
-        value: FirstMatchingController,
+    handler: {
+        value: FirstMatchingHandler,
         enumerable: true
     }
 });
@@ -88,11 +115,15 @@ function Selection(node) {
 }
 Selection.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Selection },
-    controller: {
-        value: SelectionController,
+    type: {
+        value: "sel",
+        enumerable: true
+    },
+    handler: {
+        value: SelectionHandler,
         enumerable: true
     }
-}
+});
 
 function RoutePartFactory(node) {
     switch (node.type) {
@@ -114,11 +145,12 @@ function Chapter(node) {
     this.__node__ = node;
 }
 Chapter.prototype = {
+    type: { value: "chap", enumerable: true },
     contains: function (id) {
         return !id.chapter || id.chapter === this.id;
     },
     get: function (id) {
-        var rpart = this.__node__.content[id];
+        var rpart = this.__node__.c[id];
         return RoutePartFactory(rpart);
     }
 }
@@ -131,6 +163,8 @@ function Scenario(/* jQuery element */ element) {
 		var character = charlist[i];
 		this.characters[character.id] = character;
 	}
+    
+    this.entryId = new Id(DATA.META.ENTRYPOINT);
 	
 	this.chapters = {};
     
@@ -139,22 +173,23 @@ function Scenario(/* jQuery element */ element) {
 	this.screen = null;
 }
 Scenario.prototype = {
+    init: function () {
+        this.jump(this.entryId);
+    },
+    getChapter: function (id) {
+        return new Chapter(JSON.parse(DATA.CHAPTERS[id]));
+    },
     jump: function (id) {
         var chapter;
         
-        if (this.chapter.contains(id)) {
+        if (this.chapter && this.chapter.contains(id)) {
             chapter = this.chapter;
         } else {
-            this.chapter = chapter = new Chapter(this.scenario.get(id.chapter));
+            this.chapter = chapter = this.getChapter(id.chapter);
         }
         
         this.__routepart__ = chapter.get(id.routepart);
-        
-        if (id.scene) {
-            this.scene = this.__routepart__.get(id.scene);
-        } else {
-            this.scene = this.__routepart__.get();
-        }
+        this.__routepart__.handler.handle(__routepart__);
     }
 /*	jump: function (routepartid) {
 		var ids = this.splitID(routepartid);

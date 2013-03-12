@@ -20,7 +20,6 @@ Avatar.prototype = Object.create(Object.prototype, {
     }
 });
 
-
 function SpriteGroup(/* jQuery element */ element) {
     this.__element__ = element;
 }
@@ -183,9 +182,19 @@ ViewPort.prototype = Object.create(Object.prototype, {
         },
         enumerable: true
     },
-    handle: {
-        value: function (/* Node */ node) {
-            node.handler.handle(node, this);
+    addEventListener: {
+        value: function (event, callback) {
+            switch (event) {
+                default: throw Error("Unknown event type: " + event);
+            }
+        },
+        enumerable: true
+    },
+    removeEventListener: {
+        value: function (event, callback) {
+            switch (event) {
+                default: throw Error("Unknown event type: " + event);
+            }
         },
         enumerable: true
     }

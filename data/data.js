@@ -1,13 +1,16 @@
 var DATA = {};
 DATA.META = {};
 DATA.META.CHARACTERS = [{"id":"peti","name":"Péter"},{"id":"mate","name":"Máté"}];
+DATA.META.ENTRYPOINT = "chapter1:s1";
+DATA.CHAPTERS = {};
 DATA.CHAPTERS["chapter1"] = {
     "type":"chap",
-    "id":"1",
+    "id":"chapter1",
     "c": {
         "s1": {
             "type":"seq",
-            "next":""
+            "id": "s1",
+            "next":"",
             "c":[{
                 "type":"text",
                 "person":"peti",
@@ -20,6 +23,7 @@ DATA.CHAPTERS["chapter1"] = {
         },
         "s2": {
             "type":"seq",
+            "id": "s2",
             "c":[{
                 "type":"text",
                 "person":"peti",
@@ -32,9 +36,10 @@ DATA.CHAPTERS["chapter1"] = {
         },
         "b1": {
             "type":"br",
+            "id": "b1",
             "opts":[{
-                "id":"o1"
-                "cond":"return variables.cond;"
+                "id":"o1",
+                "cond":"return variables.cond;",
                 "jump":"s1"
             },{
                 "id":"o2",
@@ -43,6 +48,7 @@ DATA.CHAPTERS["chapter1"] = {
         },
         "b2": {
             "type":"sel",
+            "id": "b2",
             "opts":[{
                 "id":"o1",
                 "text":"YES!",

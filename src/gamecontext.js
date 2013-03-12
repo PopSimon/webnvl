@@ -16,7 +16,6 @@ GameContext.prototype = Object.create(Object.prototype, {
     },
     load: {
         value: function () {
-            this.scenario.load();
         },
         enumerable: true
     }
