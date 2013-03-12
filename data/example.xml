@@ -3,25 +3,6 @@
     <sequence id="b" next="c">
         <text>bfgjnhgn</text>
         <text>hjfj</text>
-        <selection type="menu">
-            <option id="yes">
-                <command>
-                    function (variables) {
-                        variables.condition = true;
-                    }
-                </command>
-                <text>YES!</text>
-            </option>
-            <option id="nope">
-                <command>
-                    function (variables) {
-                        variables.condition = false;
-                    }
-                </command>
-                <text>Nope.avi</text>
-            </option>
-        </selection>
-        <text>asd</text>
     </sequence>
     <branching id="c">
         <case jump="zs">
@@ -37,9 +18,9 @@
         <default jump="k"/>
     </branching>
     <sequence id="zs">
-        <screen>asdasd</screen>
-        <screen>asassa</screen>
-        <screen>asd</screen>
+        <text>asdasd</text>
+        <text>asassa</text>
+        <text>asd</text>
     </sequence>
     <sequence id="k">
         <text>asdasd</text>

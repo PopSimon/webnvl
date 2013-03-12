@@ -2,13 +2,13 @@ var DATA = {};
 DATA.META = {};
 DATA.META.CHARACTERS = [{"id":"peti","name":"Péter"},{"id":"mate","name":"Máté"}];
 DATA.CHAPTERS["chapter1"] = {
-    "type":"chapter",
+    "type":"chap",
     "id":"1",
-    "content": {
+    "c": {
         "s1": {
             "type":"seq",
             "next":""
-            "content":[{
+            "c":[{
                 "type":"text",
                 "person":"peti",
                 "text":"lololo pénisz"
@@ -20,7 +20,7 @@ DATA.CHAPTERS["chapter1"] = {
         },
         "s2": {
             "type":"seq",
-            "content":[{
+            "c":[{
                 "type":"text",
                 "person":"peti",
                 "text":"lololo pénisz"
@@ -31,10 +31,10 @@ DATA.CHAPTERS["chapter1"] = {
             }]
         },
         "b1": {
-            "type":"branching",
+            "type":"br",
             "opts":[{
                 "id":"o1"
-                "condition":"function (variables) { return variables.cond; }"
+                "cond":"return variables.cond;"
                 "jump":"s1"
             },{
                 "id":"o2",
@@ -42,15 +42,15 @@ DATA.CHAPTERS["chapter1"] = {
             }]
         },
         "b2": {
-            "type":"selection",
+            "type":"sel",
             "opts":[{
                 "id":"o1",
                 "text":"YES!",
-                "effect":"function (variables) { variables.cond = true; }"
+                "ef":"variables.cond = true;"
             },{
                 "id":"o2",
                 "text":"nope.avi",
-                "effect":"function (variables) { variables.cond = false; }"
+                "ef":"variables.cond = false;"
             }]
         }
     }
