@@ -1,25 +1,68 @@
 "use strict";
 
-"use strict";
+function Id(chapter, routepart, screen) {
+    this.chapter = chapter;
+    this.routepart = routepart || null;
+    this.screen = screen || null;
+}
+Id.prototype = {
+    toString: function () {
+        return this.chapter + !this.routepart ? "" :
+        ":" + this.routepart + !this.screen ? "" : ":" + this.screen;
+    }
+}
 
-function Id(id) {
-    var parts = id.split(":");
+function LocalRoutePartId(act_chapter, string) {
+    return new Id(act_chapter.id.chapter, string, null);
+}
+
+function RoutePartRef(act_chapter, string) {
+    var parts = string.split(':');
     switch (parts.length) {
         case 1:
-            this.chapter = parts[0];
-            this.routepart = parts[1];
-            this.scene = parts[3];
+            return new LocalRoutePartId(act_chapter, string);
+        break;
         case 2:
-            this.chapter = parts[0];
-            this.routepart = parts[1];
-            this.scene = parts[3];
-        case 3:
-            this.chapter = parts[0];
-            this.routepart = parts[1];
-            this.scene = parts[3];
-        default: throw Error("Bad id: " + id);
+            return new Id(parts[0], parts[1], null);
     }
+}
 
+function RoutePartId(string) {
+    var parts = string.split(':');
+    return new Id(parts[0], parts[1], null);
+}
+
+function ChapterId(string) {
+    return new Id(string, null, null);
+}
+
+function ScreenId(routepart, string) {
+    return new Id(routepart.id.chapter, routepart.id.routepart, string);
+}
+
+/*
+ * 
+ * 
+ */
+ 
+function RoutePartFactory(chapter, node) {
+    switch (node.type) {
+        case "seq":
+            return new Sequence(chapter, node);
+        case "br":
+            return new Branching(chapter, node);
+        case "sel":
+            return new Selection(chapter, node);
+        default: throw Error("Unknown type: " + node);
+    }
+}
+
+function ScreenFactory(routepart, node) {
+    switch (node.type) {
+        case "text":
+            return new Text(routepart, node);
+        default: throw Error("Unknown type: " + node);
+    }
 }
 
 /*
@@ -27,18 +70,19 @@ function Id(id) {
  *
  */
  
-function RoutePart(node) {
+function RoutePart(chapter, node) {
+    this.chapter = chapter;
     this.__node__ = node;
-    this.id = new Id(node.id);
-    this.next = new Id(node.next);
+    this.id = new LocalRoutePartId(chapter, node.id);
+    this.next = new RoutePartRef(chapter, node.next);
 }
 RoutePart.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Sequence }
 });
 
 
-function Sequence(node) {
-    RoutePart.call(this, node);
+function Sequence(chapter, node) {
+    RoutePart.call(this, chapter, node);
     this.__sceneindex__ = 0;
 }
 Sequence.prototype = Object.create(RoutePart.prototype, {
@@ -55,24 +99,28 @@ Sequence.prototype = Object.create(RoutePart.prototype, {
     },
     firstScreen: {
         get: function () {
-            return this.SceneFactory(this.__node__.c[0]);
+            return this.screenFactory(this, this.__node__.c[0]);
         },
         enumerable: true
     },
     nextScreen: {
         get: function () {
-            return this.SceneFactory(this.__node__.c[++this.__sceneindex__]);
+            return this.screenFactory(this, this.__node__.c[++this.__sceneindex__]);
         },
         enumerable: true
     },
     handler: {
         value: SequenceHandler,
         enumerable: true
+    },
+    screenFactory: {
+        value: ScreenFactory,
+        enumerable: true
     }
 });
 
-function Branching(node) {
-    RoutePart.call(this, node);
+function Branching(chapter, node) {
+    RoutePart.call(this, chapter, node);
     this.options = {};
     
     for (var i = 0; i < this.__node__.opts.length; ++i) {
@@ -110,8 +158,8 @@ Branching.prototype = Object.create(RoutePart.prototype, {
     }
 });
 
-function Selection(node) {
-    Branching.call(this, node);
+function Selection(chapter, node) {
+    Branching.call(this, chapter, node);
 }
 Selection.prototype = Object.create(RoutePart.prototype, {
     constructor: { value: Selection },
@@ -125,36 +173,53 @@ Selection.prototype = Object.create(RoutePart.prototype, {
     }
 });
 
-function RoutePartFactory(node) {
-    switch (node.type) {
-        case "seq":
-            return new Sequence(node);
-        case "br":
-            return new Branching(node);
-        case "sel":
-            return new Selection(node);
-        default: throw Error("Unknown type: " + node);
-    }
-}
-
-
-
-
 function Chapter(node) {
-    this.id = node.id;
+    this.id = ChapterId(node.id);
     this.__node__ = node;
 }
-Chapter.prototype = {
+Chapter.prototype = Object.create(Object.prototype, {
     type: { value: "chap", enumerable: true },
-    contains: function (id) {
-        return !id.chapter || id.chapter === this.id;
+    contains: {
+        value: function (id) {
+            return !id.chapter || id.chapter === this.id;
+        },
+        enumerable: true
     },
-    get: function (id) {
-        var rpart = this.__node__.c[id];
-        return RoutePartFactory(rpart);
+    get: {
+        value: function (id) {
+            var rpart = this.__node__.c[id];
+            return RoutePartFactory(this, rpart);
+        },
+        enumerable: true
     }
+});
+
+function Screen(routepart, node) {
+    this.id = ScreenId(routepart, node.id);
+    this.__node__ = node;
+}
+Screen.prototype = {
 }
 
+function Text(routepart, node) {
+    Screen.call(this, routepart, node);
+}
+Text.prototype = Object.create(Screen.prototype, {
+    type: { value: "text", enumerable: true },
+    handler: { value: TextHandler, enumerable: true },
+    text: {
+        get: function () {
+            return this.__node__.text;
+        },
+        enumerable: true
+    },
+    avatar: {
+        get: function () {
+            return this.__node__.avtr;
+        },
+        enumerable: true
+    }
+});
 
 function Scenario(/* jQuery element */ element) {
 	this.characters = {};
@@ -164,7 +229,7 @@ function Scenario(/* jQuery element */ element) {
 		this.characters[character.id] = character;
 	}
     
-    this.entryId = new Id(DATA.META.ENTRYPOINT);
+    this.entryId = new RoutePartId(DATA.META.ENTRYPOINT);
 	
 	this.chapters = {};
     
@@ -189,7 +254,7 @@ Scenario.prototype = {
         }
         
         this.__routepart__ = chapter.get(id.routepart);
-        this.__routepart__.handler.handle(__routepart__);
+        this.__routepart__.handler.handle(this.__routepart__);
     }
 /*	jump: function (routepartid) {
 		var ids = this.splitID(routepartid);

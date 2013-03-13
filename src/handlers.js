@@ -1,5 +1,9 @@
 "use strict";
 
+function Handler(node) {
+    return new HandlerMapping[node.constructor];
+}
+
 var BranchingHandler = {
     handleOption: function (branching, opt) {
         if (opt.ef) {
@@ -39,10 +43,17 @@ var SelectionHandler = Object.create(BranchingHandler, {
     }
 });
 
-var SequenceHandler = {
+
+function SequenceHandler(sequence) {
+    this.sequence = sequence;
+    this.onNext = null;
+    this.onSkip = null;
+}
+SequenceHandler.prototype = {
     handleExit: function (sequence) {
-        GAMECONTEXT.viewport.removeEventListener("next", onNext);
-        GAMECONTEXT.viewport.removeEventListener("skip", onSkip);
+        GAMECONTEXT.viewport.events.next.remove(this.onNext);
+        GAMECONTEXT.viewport.events.skip.remove(this.onSkip);
+        
         Scenario.jump(sequence.next);
     },
     handleNext: function (sequence) {
@@ -53,21 +64,22 @@ var SequenceHandler = {
             this.handleExit(sequence);
         }
     },
-    handle: function (sequence) {
+    handle: function () {
         var handler = this;
+        var sequence = this.sequence;
         var screen = sequence.firstScreen;
         screen.handler.handle(screen);
         
-        function onNext() {
+        this.onNext = function () {
             handler.handleNext(sequence);
         }
         
-        function onSkip() {
+        this.onSkip = function () {
             handler.handleExit(sequence);
         }
         
-        GAMECONTEXT.viewport.addEventListener("next", onNext);
-        GAMECONTEXT.viewport.addEventListener("skip", onSkip);
+        GAMECONTEXT.viewport.events.next.add(this.onNext);
+        GAMECONTEXT.viewport.events.skip.add(this.onSkip);
     }
 };
 
@@ -105,21 +117,21 @@ var TextHandler = {
     handleName: function (textNode) {
         if (textNode.char) {
             var character = GAMECONTEXT.characters[textNode.char];
-            GAMECONTEXT.viewport.setSpeaker(character);
+            //GAMECONTEXT.viewport.setSpeaker(character);
         } else {
-            GAMECONTEXT.viewport.setSpeaker(null);
+            //GAMECONTEXT.viewport.setSpeaker(null);
         }
     },
     handleAvatar: function (textNode) {
-        if (textNode.char && textNode.avtr) {
-            var character = GAMECONTEXT.characters[textNode.char];
-            GAMECONTEXT.viewport.setAvatar(character, textNode.avtr);
-        } else {
-            GAMECONTEXT.viewport.setAvatar(null, null);
-        }
+        GAMECONTEXT.viewport.avatar.src = textNode.avatar;
+    },
+    handleText: function (textNode) {
+        GAMECONTEXT.viewport.text = textNode.text;
     },
     handle: function (textNode) {
-        GAMECONTEXT.viewport.setText(textNode.text);
+        this.handleName(textNode);
+        this.handleAvatar(textNode);
+        this.handleText(textNode);
     }
 };
 
@@ -160,3 +172,9 @@ var AutoScreenHandler = Object.create(SimpleScreenHandler, {
         }, screen.interval);
     }
 });
+
+var HandlerMapping = {};
+HandlerMapping[Selection.prototype.type] = SelectionHandler;
+HandlerMapping[Branching.prototype.type] = FirstMatchingHandler;
+HandlerMapping[Sequence.prototype.type] = SequenceHandler;
+HandlerMapping[Text.prototype.type] = TextHandler;

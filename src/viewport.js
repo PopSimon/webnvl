@@ -1,22 +1,50 @@
 "use strict";
 
-function Avatar(character, mood) {
-    this.character = character;
-    this.mood = mood;
+function TextBox(/* jQuery element */ element) {
+    this.__element__ = element;
+    this.__text__ = this.__element__.find("#text");
+}
+TextBox.prototype = Object.create(Object.prototype, {
+    text: {
+        get: function () {
+            return this.__text__.text();
+        },
+        set: function (/* jQuery element */ text) {
+            TypeWriter.clear();
+            TypeWriter.out(this.__text__);
+            TypeWriter.in(this.__text__, text, 16);
+        },
+        enumerable: true
+    }
+});
+
+function Avatar(element) {
+    this.__element__ = element;
 }
 Avatar.prototype = Object.create(Object.prototype, {
-    constructor: {
-        value: Avatar,
-        writable: false,
-        enumerable: true,
-        configurable: false
+    constructor: { value: Avatar },
+    toRelativePath: {
+        value: function (file) {
+            return "img/char/" + file;
+        }
     },
-    isEmpty: {
+    src: {
         get: function () {
-            return !this.character || !this.mood;
+            if (this.__element__.hasClass("noavatar")) {
+                return null;
+            } else {
+                return this.__element__.attr("src");
+            }
         },
-        enumerable: true,
-        configurable: false
+        set: function (file) {
+            if (!file || file.isEmpty) {
+                this.__element__.addClass("noavatar");
+            } else {
+                this.__element__.removeClass("noavatar");
+                this.__element__.attr("src", this.toRelativePath(file));
+            }
+        },
+        enumerable: true
     }
 });
 
@@ -54,16 +82,23 @@ Stage.prototype = Object.create(Object.prototype, {
     constructor: { value: Stage }
 });
 
+
 function ViewPort() {
     this.element = $("#viewport");
     this.__choices__ = $("#choices");
-    this.textBox = $("#textbox");
-    this.__text__ = $("#text");
+    this.textBox = new TextBox($("#textbox"));
     this.stage = new Stage($("#stage"));
-    this._avatarField = $("#avatar");
+    this.avatar = new Avatar($("#avatar"));
     this._ambientField = null; //$("#ambient");
     this.oWidth = this.element.attr("width");
     this.oHeight = this.element.attr("height");
+    
+    this.events = {
+        next: new NextEventTransmitter(),
+        skip: new SkipEventTransmitter(),
+        toggleui: new ToggleUIEventTransmitter()
+    };
+    
     this.reset();
 }
 ViewPort.prototype = Object.create(Object.prototype, {
@@ -94,41 +129,6 @@ ViewPort.prototype = Object.create(Object.prototype, {
         },
         writable: false,
         enumerable: false,
-        configurable: false
-    },
-    avatar: {
-        get: function () {
-            if (this._avatarField.hasClass("noavatar")) {
-                return null;
-            } else {
-                return new Avatar(
-                    this._avatarField.data("character"),
-                    this._avatarField.data("mood")
-                );
-            }
-        },
-        set: function (avatar) {
-            if (!avatar || avatar.isEmpty) {
-                this._avatarField.addClass("noavatar");
-            } else {
-                this._avatarField.removeClass("noavatar");
-                this._avatarField.attr("data-character", avatar.character);
-                this._avatarField.attr("data-mood", avatar.mood);
-            }
-        },
-        enumerable: true,
-        configurable: false
-    },
-    text: {
-        get: function () {
-            return this.__text__.contents();
-        },
-        set: function (/* jQuery element */ element) {
-            TypeWriter.clear();
-            TypeWriter.out(this.__text__);
-            TypeWriter.in(this.__text__, element.clone(), 16);
-        },
-        enumerable: true,
         configurable: false
     },
     ambient: {
@@ -185,6 +185,7 @@ ViewPort.prototype = Object.create(Object.prototype, {
     addEventListener: {
         value: function (event, callback) {
             switch (event) {
+                
                 default: throw Error("Unknown event type: " + event);
             }
         },
@@ -195,6 +196,15 @@ ViewPort.prototype = Object.create(Object.prototype, {
             switch (event) {
                 default: throw Error("Unknown event type: " + event);
             }
+        },
+        enumerable: true
+    },
+    text: {
+        get: function () {
+            return this.textBox.text;
+        },
+        set: function (value) {
+            this.textBox.text = value;
         },
         enumerable: true
     }

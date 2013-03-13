@@ -5,16 +5,13 @@ var TypeWriter = {
     out: function (element) {
         element.empty();
     },
-    in: function (element, content, time) {
-        var text = content.text();
+    in: function (element, text, time) {
         var index = 0;
         var written = "";
-        content.empty();
-        element.append(content);
         
         function animate() {
             if (index <= text.length) {
-                content.text(written);
+                element.text(written);
                 requestAnimationFrame(animate);
             }
         }
@@ -28,6 +25,7 @@ var TypeWriter = {
             written += text.charAt(index);
             ++index;
         }).bind(this), time);
+        
         this.__handles__.push(handle);
         requestAnimationFrame(animate);
     },

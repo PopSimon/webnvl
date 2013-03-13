@@ -10,7 +10,7 @@ DATA.CHAPTERS["chapter1"] = {
         "s1": {
             "type":"seq",
             "id": "s1",
-            "next":"",
+            "next":"b2",
             "c":[{
                 "type":"text",
                 "person":"peti",
@@ -24,6 +24,7 @@ DATA.CHAPTERS["chapter1"] = {
         "s2": {
             "type":"seq",
             "id": "s2",
+            "next":"b1",
             "c":[{
                 "type":"text",
                 "person":"peti",
