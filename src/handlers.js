@@ -1,42 +1,128 @@
 "use strict";
 
-function Handler(node) {
-    return new HandlerMapping[node.constructor];
+/*
+ *
+ *
+ */
+ 
+function RoutePart(node) {
+    this.__node__ = node;
 }
-
-var BranchingHandler = {
-    handleOption: function (branching, opt) {
-        if (opt.ef) {
-            var effect = new Function("variables", opt.ef);
-            effect(GAMECONTEXT.variables);
+RoutePart.prototype = Object.create(RoutePart.prototype, {
+    constructor: { value: RoutePart }
+    /*next: {
+        get: function () {
+            GAMECONTEXT.scenario.getRoutePart(this.__node__.next);
         }
-        
-        GAMECONTEXT.scenario.jump(opt.next || branching.next);
+    }*/
+});
+
+/*
+ * 
+ * 
+ */
+ 
+function RoutePartFactory(chapter, node) {
+    switch (node.type) {
+        case "seq":
+            return new Sequence(chapter, node);
+        case "br":
+            return new Branching(chapter, node);
+        case "sel":
+            return new Selection(chapter, node);
+        default: throw Error("Unknown type: " + node);
     }
 }
 
-var FirstMatchingHandler = Object.create(BranchingHandler, {
-    handle: {
-        value: function (branching) {
-            var opts = branching.validOptions;
-            this.handleOption(branching, opts[0]);
+function ScreenFactory(routepart, node) {
+    switch (node.type) {
+        case "text":
+            return new Text(routepart, node);
+        default: throw Error("Unknown type: " + node);
+    }
+}
+
+function Handler(node) {
+    return new HandlerMapping[node.type](node);
+}
+
+
+function BranchingHandler(node) {
+    RoutePart.call(this, node);
+    this.options = {};
+    
+    for (var i = 0; i < this.__node__.opts.length; ++i) {
+        var opt = this.__node__.opts[i];
+        this.options[opt.id] = opt;
+    }
+}
+BranchingHandler.prototype = Object.create(RoutePart.prototype, {
+    validOptions: {
+        get: function () {
+            var valid = [];
+            for (var i = 0; i < this.__node__.opts.length; ++i) {
+                var opt = this.__node__.opts[i];
+                if (opt.cond) {
+                    var cond = new Function("variables", opt.cond);
+                    if (cond(GAMECONTEXT.variables)) {
+                        valid.push(opt);
+                    }
+                } else {
+                    valid.push(opt);
+                }
+            }
+            return valid;
+        },
+        enumerable: true
+    },
+    handleOption: {
+        value: function (opt) {
+            if (opt.ef) {
+                var effect = new Function("variables", opt.ef);
+                effect(GAMECONTEXT.variables);
+            }
+            
+            GAMECONTEXT.scenario.jumpToRoutePart(opt.next || this.__node__.next);
         },
         enumerable: true
     }
 });
 
-var SelectionHandler = Object.create(BranchingHandler, {
+function FirstMatchingHandler(node) {
+    BranchingHandler.call(this, node);
+}
+FirstMatchingHandler.prototype = Object.create(BranchingHandler.prototype, {
+    constructor: { value: FirstMatchingHandler },
     handle: {
-        value: function (branching) {
-            var opts = branching.validOptions;
+        value: function () {
+            this.handleOption(this.validOptions[0]);
+        },
+        enumerable: true
+    }
+});
+
+
+function SelectionHandler(node) {
+    BranchingHandler.call(this, node);
+    this.onSelect = null;
+}
+SelectionHandler.prototype = Object.create(BranchingHandler.prototype, {
+    constructor: { value: FirstMatchingHandler },
+    handle: {
+        value: function () {
+            var opts = this.validOptions;
             var handler = this;
             
-            var selection = new Selection(opts, function (opt) {
-                GAMECONTEXT.viewport.dialogue.hide();
-                handler.handleOption(branching, opt);
-            });
+            var selection = new Selection(opts, 
             
-            GAMECONTEXT.viewport.dialogue.options = selection;
+            this.onSelect = function (opt) {
+                GAMECONTEXT.viewport.dialogue.hide();
+                GAMECONTEXT.viewport.events.choose.remove(handler.onSelect);
+                handler.handleOption(opt);
+            };
+            
+            GAMECONTEXT.viewport.dialogue.options = opts;
+            GAMECONTEXT.viewport.events.choose.add(this.onSelect);
             GAMECONTEXT.viewport.dialogue.show();
         },
         enumerable: true
@@ -44,44 +130,72 @@ var SelectionHandler = Object.create(BranchingHandler, {
 });
 
 
-function SequenceHandler(sequence) {
-    this.sequence = sequence;
+function SequenceHandler(node) {
+    RoutePart.call(this, node);
+    this.__sceneindex__ = 0;
+    
     this.onNext = null;
     this.onSkip = null;
 }
-SequenceHandler.prototype = {
-    handleExit: function (sequence) {
-        GAMECONTEXT.viewport.events.next.remove(this.onNext);
-        GAMECONTEXT.viewport.events.skip.remove(this.onSkip);
-        
-        Scenario.jump(sequence.next);
+SequenceHandler.prototype = Object.create(RoutePart.prototype, {
+    handleExit: {
+        value: function () {
+            GAMECONTEXT.viewport.events.next.remove(this.onNext);
+            GAMECONTEXT.viewport.events.skip.remove(this.onSkip);
+            
+            GAMECONTEXT.scenario.jumpToRoutePart(this.__node__.next);
+        },
+        enumerable: true,
     },
-    handleNext: function (sequence) {
-        if (sequence.hasNextScreen) {
-            var screen = sequence.nextScreen;
-            screen.handler.handle(screen);
-        } else {
-            this.handleExit(sequence);
-        }
+    hasNextScreen: {
+        get: function () {
+            return this.__sceneindex__ < this.__node__.c.length - 1;
+        },
+        enumerable: true
     },
-    handle: function () {
-        var handler = this;
-        var sequence = this.sequence;
-        var screen = sequence.firstScreen;
-        screen.handler.handle(screen);
-        
-        this.onNext = function () {
-            handler.handleNext(sequence);
-        }
-        
-        this.onSkip = function () {
-            handler.handleExit(sequence);
-        }
-        
-        GAMECONTEXT.viewport.events.next.add(this.onNext);
-        GAMECONTEXT.viewport.events.skip.add(this.onSkip);
+    firstScreen: {
+        get: function () {
+            return new Handler(this.__node__.c[0]);
+        },
+        enumerable: true
+    },
+    nextScreen: {
+        get: function () {
+            return new Handler(this.__node__.c[++this.__sceneindex__]);
+        },
+        enumerable: true
+    },
+    handleNext: {
+        value: function () {
+            if (this.hasNextScreen) {
+                var screen = this.nextScreen;
+                screen.handle();
+            } else {
+                this.handleExit();
+            }
+        },
+        enumerable: true,
+    },
+    handle: {
+        value: function () {
+            var handler = this;
+            var screen = this.firstScreen;
+            screen.handle();
+            
+            this.onNext = function () {
+                handler.handleNext();
+            }
+            
+            this.onSkip = function () {
+                handler.handleExit();
+            }
+            
+            GAMECONTEXT.viewport.events.next.add(this.onNext);
+            GAMECONTEXT.viewport.events.skip.add(this.onSkip);
+        },
+        enumerable: true,
     }
-};
+});
 
 var StageHandler = {
     handle: function (stage) {
@@ -113,55 +227,79 @@ var StageHandler = {
     }
 };
 
-var TextHandler = {
-    handleName: function (textNode) {
-        if (textNode.char) {
-            var character = GAMECONTEXT.characters[textNode.char];
-            //GAMECONTEXT.viewport.setSpeaker(character);
-        } else {
-            //GAMECONTEXT.viewport.setSpeaker(null);
-        }
-    },
-    handleAvatar: function (textNode) {
-        GAMECONTEXT.viewport.avatar.src = textNode.avatar;
-    },
-    handleText: function (textNode) {
-        GAMECONTEXT.viewport.text = textNode.text;
-    },
-    handle: function (textNode) {
-        this.handleName(textNode);
-        this.handleAvatar(textNode);
-        this.handleText(textNode);
-    }
-};
 
-function handleBackground(bg) {
-    GAMECONTEXT.viewport.setBackground(bg.src, bg.fade);
+function ScreenHandler(node) {
+    this.__node__ = node;
+}
+ScreenHandler.prototype = {
+    handle: function () {
+
+    }
 }
 
-var SimpleScreenHandler = {
-
-    handle: function (screen) {
-        GAMECONTEXT.scenario.screen = screen;
-        
-        if (screen.stage) {
-            StageHandler.handle(screen.stage);
-        }
-        
-        TextHandler.handle(screen);
-        
-        if (screen.bg) {
-            handleBackground(bg);
-        }
+function TextHandler(routepart, node) {
+    ScreenHandler.call(this, routepart, node);
+}
+TextHandler.prototype = Object.create(ScreenHandler.prototype, {
+    constructor: { value: TextHandler },
+    handleStage: {
+        value: function () {
+            if (this.__node__.stage) {
+                StageHandler.handle(screen.stage);
+            }
+        },
+        enumerable: true
+    },
+    handleName: {
+        value: function () {
+            if (this.__node__.char) {
+                var character = GAMECONTEXT.scenario.characters[this.__node__.char];
+                GAMECONTEXT.viewport.speaker = character;
+            } else {
+                GAMECONTEXT.viewport.speaker = null;
+            }
+        },
+        enumerable: true
+    },
+    handleAvatar: {
+        value: function () {
+            GAMECONTEXT.viewport.avatar.src = this.__node__.avatar;
+        },
+        enumerable: true
+    },
+    handleText: {
+        value: function () {
+            GAMECONTEXT.viewport.text = this.__node__.text;
+        },
+        enumerable: true
+    },
+    handleBackground: {
+        value: function () {
+            if (this.__node__.bg) {
+                GAMECONTEXT.viewport.setBackground(this.__node__.bg.src, this.__node__.fade);
+            }
+        },
+        enumerable: true
+    },
+    handle: {
+        value: function () {
+            this.handleName();
+            this.handleAvatar();
+            this.handleText();
+            this.handleBackground();
+            this.handleStage();
+        },
+        enumerable: true
     }
-};
+});
+
 
 var AutoSequenceHandler = Object.create(SequenceHandler, {
     constructor: { value: AutoSequenceHandler },
     handleNext: { value: function () {} }
 });
 
-var AutoScreenHandler = Object.create(SimpleScreenHandler, {
+var AutoScreenHandler = Object.create(TextHandler, {
     constructor: { value: AutoScreenHandler },
     handle: function (screen) {
         GAMECONTEXT.scenario.screen = screen;
@@ -174,7 +312,7 @@ var AutoScreenHandler = Object.create(SimpleScreenHandler, {
 });
 
 var HandlerMapping = {};
-HandlerMapping[Selection.prototype.type] = SelectionHandler;
-HandlerMapping[Branching.prototype.type] = FirstMatchingHandler;
-HandlerMapping[Sequence.prototype.type] = SequenceHandler;
-HandlerMapping[Text.prototype.type] = TextHandler;
+HandlerMapping["sel"] = SelectionHandler;
+HandlerMapping["br"] = FirstMatchingHandler;
+HandlerMapping["seq"] = SequenceHandler;
+HandlerMapping["text"] = TextHandler;

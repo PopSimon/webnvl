@@ -133,3 +133,37 @@ ToggleUIEventTransmitter.prototype = Object.create(EventSource.prototype ,{
         enumerable: true
     }
 });
+
+
+function DialogeChooseEventTransmitter() {
+    EventSource.call(this);
+    this.keylisteners = [];
+}
+DialogeChooseEventTransmitter.prototype = Object.create(EventSource.prototype ,{
+    add: {
+        value: function (callback) {
+            var keylistener = function (e) {
+                e.preventDefault();
+                callback(e);
+            };
+            
+            this.listeners.push(callback);
+            this.keylisteners.push(keylistener);
+            
+            KeyEventSource.ctrldown.add(keylistener);
+        },
+        enumerable: true
+    },
+    remove: {
+        value: function (callback) {
+            var index = this.listeners.indexOf(callback);
+            var keylistener = this.keylisteners[index];
+            
+            KeyEventSource.ctrldown.remove(keylistener);
+            
+            this.listeners.splice(index, 1);
+            this.keylisteners.splice(index, 1);
+        },
+        enumerable: true
+    }
+});

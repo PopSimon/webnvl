@@ -96,6 +96,7 @@ function ViewPort() {
     this.events = {
         next: new NextEventTransmitter(),
         skip: new SkipEventTransmitter(),
+        choose: new DialogeChooseEventTransmitter,
         toggleui: new ToggleUIEventTransmitter()
     };
     
