@@ -58,7 +58,7 @@ html, body, #viewport, #backgrounds, #characters {
 }
 
 
-#choices {
+#dialogue {
     position: absolute;
     z-index: 101;
     top: 4%;
@@ -70,18 +70,20 @@ html, body, #viewport, #backgrounds, #characters {
     height: 36%; */
 }
 
-#choices ul {
+#dialogue ul {
     width: 100%;
 }
 
-#choices li {
+#dialogue li {
     width: 100%; text-align: center;
-}
-
-#choices a {
     background-color: yellow;
     margin-left: auto; margin-right: auto;
     font-size: 12pt;
+    cursor: pointer;
+}
+
+#dialogue li:hover {
+    background-color: white;
 }
 
 #text{
@@ -119,4 +121,8 @@ html, body, #viewport, #backgrounds, #characters {
 
 #avatar.noavatar {
     display: none;
+}
+
+.hidden {
+    visibility: hidden;
 }

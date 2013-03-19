@@ -41,15 +41,16 @@ DATA.CHAPTERS["chapter1"] = {
             "opts":[{
                 "id":"o1",
                 "cond":"return variables.cond;",
-                "jump":"s1"
+                "next":"s1"
             },{
                 "id":"o2",
-                "jump":"s2"
+                "next":"s2"
             }]
         },
         "b2": {
             "type":"sel",
             "id": "b2",
+            "next": "s2",
             "opts":[{
                 "id":"o1",
                 "text":"YES!",

@@ -104,25 +104,22 @@ FirstMatchingHandler.prototype = Object.create(BranchingHandler.prototype, {
 
 function SelectionHandler(node) {
     BranchingHandler.call(this, node);
-    this.onSelect = null;
+    
+    var handler = this;
+    this.onSelect = function (opt) {
+        GAMECONTEXT.viewport.dialogue.hide();
+        GAMECONTEXT.viewport.dialogue.events.select.remove(handler.onSelect);
+        handler.handleOption(opt);
+    };
 }
 SelectionHandler.prototype = Object.create(BranchingHandler.prototype, {
     constructor: { value: FirstMatchingHandler },
     handle: {
         value: function () {
             var opts = this.validOptions;
-            var handler = this;
-            
-            var selection = new Selection(opts, 
-            
-            this.onSelect = function (opt) {
-                GAMECONTEXT.viewport.dialogue.hide();
-                GAMECONTEXT.viewport.events.choose.remove(handler.onSelect);
-                handler.handleOption(opt);
-            };
             
             GAMECONTEXT.viewport.dialogue.options = opts;
-            GAMECONTEXT.viewport.events.choose.add(this.onSelect);
+            GAMECONTEXT.viewport.dialogue.events.select.add(this.onSelect);
             GAMECONTEXT.viewport.dialogue.show();
         },
         enumerable: true

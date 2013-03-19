@@ -1,10 +1,30 @@
 "use strict";
 
-function TextBox(/* jQuery element */ element) {
+function UIElement(/* jQuery element */ element) {
     this.__element__ = element;
+}
+UIElement.prototype = Object.create(Object.prototype, {
+    constructor: { value: UIElement },
+    show: {
+        value: function () {
+            this.__element__.removeClass("hidden");
+        },
+        enumerable: true
+    },
+    hide: {
+        value: function () {
+            this.__element__.addClass("hidden");
+        },
+        enumerable: true
+    }
+});
+
+function TextBox(/* jQuery element */ element) {
+    UIElement.call(this, element);
     this.__text__ = this.__element__.find("#text");
 }
-TextBox.prototype = Object.create(Object.prototype, {
+TextBox.prototype = Object.create(UIElement.prototype, {
+    constructor: { value: TextBox },
     text: {
         get: function () {
             return this.__text__.text();
@@ -13,6 +33,64 @@ TextBox.prototype = Object.create(Object.prototype, {
             TypeWriter.clear();
             TypeWriter.out(this.__text__);
             TypeWriter.in(this.__text__, text, 16);
+        },
+        enumerable: true
+    }
+});
+
+function Dialogue(/* jQuery element */ element) {
+    UIElement.call(this, element);
+    this.__optroot__ = this.__element__.find("#options");
+    this.__optproto__ = this.__optroot__.children().eq(0);
+    this.__options__ = [];
+    
+    var dialogue = this;
+    this.__onselect__ = function (e) {
+        var optid = $(this).data("optid");
+        var opt = dialogue.__options__[optid];
+        dialogue.events.select.shoot(opt);
+    };
+}
+Dialogue.prototype = Object.create(UIElement.prototype, {
+    constructor: { value: Dialogue },
+    options: {
+        get: function () {
+            return this.__options__;
+        },
+        set: function (opts) {
+            this.__optroot__.empty();
+            this.__options__ = opts;
+            for (var i = 0; i < opts.length; ++i) {
+                var opt = opts[i];
+                var optelem = this.__optproto__.clone();
+                optelem.data("optid", i);
+                optelem.bind("click", this.__onselect__);
+                optelem.text(opt.text);
+                this.__optroot__.append(optelem);
+            }
+        },
+        enumerable: true
+    },
+    events: {
+        value: Object.create(Object.prototype, {
+            select: {
+                value: new EventSource(),
+                enumerable: true
+            }
+        }),
+        enumerable: true
+    },
+    show: {
+        value: function () {
+            GAMECONTEXT.viewport.textbox.hide();
+            parentPrototype(this).show.call(this);
+        },
+        enumerable: true
+    },
+    hide: {
+        value: function () {
+            GAMECONTEXT.viewport.textbox.show();
+            parentPrototype(this).hide.call(this);
         },
         enumerable: true
     }
@@ -85,8 +163,8 @@ Stage.prototype = Object.create(Object.prototype, {
 
 function ViewPort() {
     this.element = $("#viewport");
-    this.__choices__ = $("#choices");
-    this.textBox = new TextBox($("#textbox"));
+    this.textbox = new TextBox($("#textbox"));
+    this.dialogue = new Dialogue($("#dialogue"));
     this.stage = new Stage($("#stage"));
     this.avatar = new Avatar($("#avatar"));
     this._ambientField = null; //$("#ambient");
@@ -147,65 +225,18 @@ ViewPort.prototype = Object.create(Object.prototype, {
         enumerable: true,
         configurable: false
     },
-    hideTextBox: {
-        value: function () {
-            this.textBox.addClass("hidden");
-        },
-        enumerable: true,
-    },
-    showTextBox: {
-        value: function () {
-            this.textBox.removeClass("hidden");
-        },
-        enumerable: true,
-    },
-    choices: {
-        set: function (/* jQuery element */ element) {
-            this.__choices__.empty().append(element);
-        },
-        enumerable: true
-    },
-    hideChoices: {
-        value: function () {
-            this.__choices__.addClass("hidden");
-        },
-        enumerable: true,
-    },
-    showChoices: {
-        value: function () {
-            this.__choices__.removeClass("hidden");
-        },
-        enumerable: true,
-    },
     toggleUI: {
         value: function () {
             this.textBox.toggleClass("hidden");
         },
         enumerable: true
     },
-    addEventListener: {
-        value: function (event, callback) {
-            switch (event) {
-                
-                default: throw Error("Unknown event type: " + event);
-            }
-        },
-        enumerable: true
-    },
-    removeEventListener: {
-        value: function (event, callback) {
-            switch (event) {
-                default: throw Error("Unknown event type: " + event);
-            }
-        },
-        enumerable: true
-    },
     text: {
         get: function () {
-            return this.textBox.text;
+            return this.textbox.text;
         },
         set: function (value) {
-            this.textBox.text = value;
+            this.textbox.text = value;
         },
         enumerable: true
     }
