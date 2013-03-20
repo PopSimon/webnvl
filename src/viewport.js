@@ -1,101 +1,5 @@
 "use strict";
 
-function UIElement(/* jQuery element */ element) {
-    this.__element__ = element;
-}
-UIElement.prototype = Object.create(Object.prototype, {
-    constructor: { value: UIElement },
-    show: {
-        value: function () {
-            this.__element__.removeClass("hidden");
-        },
-        enumerable: true
-    },
-    hide: {
-        value: function () {
-            this.__element__.addClass("hidden");
-        },
-        enumerable: true
-    }
-});
-
-function TextBox(/* jQuery element */ element) {
-    UIElement.call(this, element);
-    this.__text__ = this.__element__.find("#text");
-}
-TextBox.prototype = Object.create(UIElement.prototype, {
-    constructor: { value: TextBox },
-    text: {
-        get: function () {
-            return this.__text__.text();
-        },
-        set: function (/* jQuery element */ text) {
-            TypeWriter.clear();
-            TypeWriter.out(this.__text__);
-            TypeWriter.in(this.__text__, text, 16);
-        },
-        enumerable: true
-    }
-});
-
-function Dialogue(/* jQuery element */ element) {
-    UIElement.call(this, element);
-    this.__optroot__ = this.__element__.find("#options");
-    this.__optproto__ = this.__optroot__.children().eq(0);
-    this.__options__ = [];
-    
-    var dialogue = this;
-    this.__onselect__ = function (e) {
-        var optid = $(this).data("optid");
-        var opt = dialogue.__options__[optid];
-        dialogue.events.select.shoot(opt);
-    };
-}
-Dialogue.prototype = Object.create(UIElement.prototype, {
-    constructor: { value: Dialogue },
-    options: {
-        get: function () {
-            return this.__options__;
-        },
-        set: function (opts) {
-            this.__optroot__.empty();
-            this.__options__ = opts;
-            for (var i = 0; i < opts.length; ++i) {
-                var opt = opts[i];
-                var optelem = this.__optproto__.clone();
-                optelem.data("optid", i);
-                optelem.bind("click", this.__onselect__);
-                optelem.text(opt.text);
-                this.__optroot__.append(optelem);
-            }
-        },
-        enumerable: true
-    },
-    events: {
-        value: Object.create(Object.prototype, {
-            select: {
-                value: new EventSource(),
-                enumerable: true
-            }
-        }),
-        enumerable: true
-    },
-    show: {
-        value: function () {
-            GAMECONTEXT.viewport.textbox.hide();
-            parentPrototype(this).show.call(this);
-        },
-        enumerable: true
-    },
-    hide: {
-        value: function () {
-            GAMECONTEXT.viewport.textbox.show();
-            parentPrototype(this).hide.call(this);
-        },
-        enumerable: true
-    }
-});
-
 function Avatar(element) {
     this.__element__ = element;
 }
@@ -160,11 +64,11 @@ Stage.prototype = Object.create(Object.prototype, {
     constructor: { value: Stage }
 });
 
-
 function ViewPort() {
     this.element = $("#viewport");
     this.textbox = new TextBox($("#textbox"));
-    this.dialogue = new Dialogue($("#dialogue"));
+    this.dialog = new Dialog($("#dialogue"));
+    this.__ui__ = this.textbox;
     this.stage = new Stage($("#stage"));
     this.avatar = new Avatar($("#avatar"));
     this._ambientField = null; //$("#ambient");
@@ -177,6 +81,40 @@ function ViewPort() {
         choose: new DialogeChooseEventTransmitter,
         toggleui: new ToggleUIEventTransmitter()
     };
+    
+    var viewport = this;
+    window.addEventListener("keydown", function (e) {
+        switch (e.keyCode) {
+            case 8: // backspace
+                viewport.ui.events.backspace.down.shoot(e);
+            break;
+            case 9: // tab
+                viewport.ui.events.tab.down.shoot(e);
+            break;
+            case 13: // enter
+                viewport.ui.events.enter.down.shoot(e);
+            break;
+            case 27: // space
+                viewport.ui.events.escape.down.shoot(e);
+            break;
+            case 32: // space
+                viewport.ui.events.space.down.shoot(e);
+            break;
+            case 39: // arrow right
+                viewport.ui.events.arrow.right.down.shoot(e);
+            break;
+            case 40: // arrow down
+                viewport.ui.events.arrow.down.down.shoot(e);
+            break;
+            case 38: // arrow up
+                viewport.ui.events.arrow.up.down.shoot(e);
+            break;
+            case 37: // arrow left
+                viewport.ui.events.arrow.left.down.shoot(e);
+            break;
+            default:
+        }
+    }, false);
     
     this.reset();
 }
@@ -225,18 +163,23 @@ ViewPort.prototype = Object.create(Object.prototype, {
         enumerable: true,
         configurable: false
     },
-    toggleUI: {
-        value: function () {
-            this.textBox.toggleClass("hidden");
-        },
-        enumerable: true
-    },
     text: {
         get: function () {
             return this.textbox.text;
         },
         set: function (value) {
             this.textbox.text = value;
+        },
+        enumerable: true
+    },
+    ui: {
+        get: function () {
+            return this.__ui__;
+        },
+        set: function (ui) {
+            this.__ui__.hide();
+            this.__ui__ = ui;
+            this.__ui__.show();
         },
         enumerable: true
     }

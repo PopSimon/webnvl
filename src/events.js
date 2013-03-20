@@ -2,6 +2,7 @@
 
 function EventSource() {
     this.listeners = [];
+    this.blocked = false;
 }
 EventSource.prototype = {
     add: function (listener) {
@@ -10,30 +11,41 @@ EventSource.prototype = {
     remove: function (listener) {
         this.listeners.splice(this.listeners.indexOf(listener), 1);
     },
+    block: function () {
+        this.blocked = true;
+    },
+    unblock: function () {
+        this.blocked = false;
+    },
     shoot: function (e) {
-        for (var i = 0; i < this.listeners.length; ++i) {
-            this.listeners[i](e);
+        if (!this.blocked) {
+            for (var i = 0; i < this.listeners.length; ++i) {
+                this.listeners[i](e);
+            }
         }
     }
 }
 
-var KeyEventSource = {
-    spacedown: new EventSource(),
-    backspacedown: new EventSource(),
-    ctrldown: new EventSource()
-};
+function KeyEventSource() {
+    this.down = new EventSource();
+}
 
-window.addEventListener("keydown", function (e) {
-    switch (e.keyCode) {
-        case 32: // space
-            KeyEventSource.spacedown.shoot(e);
-        break;
-        case 8: // backspace
-            KeyEventSource.backspacedown.shoot(e);
-        default:
-        break;
-    }
-}, false);
+function KeyEvents() {
+    this.space = new KeyEventSource();
+    this.backspace = new KeyEventSource();
+    this.ctrl = new KeyEventSource();
+    this.arrow = {
+        up: new KeyEventSource(),
+        down: new KeyEventSource(),
+        left: new KeyEventSource(),
+        right: new KeyEventSource()
+    };
+    this.tab = new KeyEventSource();
+    this.escape = new KeyEventSource();
+    this.enter = new KeyEventSource();
+}
+
+
 
 function NextEventTransmitter() {
     EventSource.call(this);

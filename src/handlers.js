@@ -107,8 +107,8 @@ function SelectionHandler(node) {
     
     var handler = this;
     this.onSelect = function (opt) {
-        GAMECONTEXT.viewport.dialogue.hide();
-        GAMECONTEXT.viewport.dialogue.events.select.remove(handler.onSelect);
+        GAMECONTEXT.viewport.dialog.close();
+        GAMECONTEXT.viewport.dialog.events.choices.select.remove(handler.onSelect);
         handler.handleOption(opt);
     };
 }
@@ -118,9 +118,9 @@ SelectionHandler.prototype = Object.create(BranchingHandler.prototype, {
         value: function () {
             var opts = this.validOptions;
             
-            GAMECONTEXT.viewport.dialogue.options = opts;
-            GAMECONTEXT.viewport.dialogue.events.select.add(this.onSelect);
-            GAMECONTEXT.viewport.dialogue.show();
+            GAMECONTEXT.viewport.dialog.options = opts;
+            GAMECONTEXT.viewport.dialog.events.choices.select.add(this.onSelect);
+            GAMECONTEXT.viewport.dialog.open();
         },
         enumerable: true
     }
@@ -137,8 +137,8 @@ function SequenceHandler(node) {
 SequenceHandler.prototype = Object.create(RoutePart.prototype, {
     handleExit: {
         value: function () {
-            GAMECONTEXT.viewport.events.next.remove(this.onNext);
-            GAMECONTEXT.viewport.events.skip.remove(this.onSkip);
+            GAMECONTEXT.viewport.ui.events.next.remove(this.onNext);
+            GAMECONTEXT.viewport.ui.events.skip.remove(this.onSkip);
             
             GAMECONTEXT.scenario.jumpToRoutePart(this.__node__.next);
         },
@@ -187,8 +187,8 @@ SequenceHandler.prototype = Object.create(RoutePart.prototype, {
                 handler.handleExit();
             }
             
-            GAMECONTEXT.viewport.events.next.add(this.onNext);
-            GAMECONTEXT.viewport.events.skip.add(this.onSkip);
+            GAMECONTEXT.viewport.ui.events.next.add(this.onNext);
+            GAMECONTEXT.viewport.ui.events.skip.add(this.onSkip);
         },
         enumerable: true,
     }
