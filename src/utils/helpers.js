@@ -1,9 +1,18 @@
+"use strict";
+
 function parentPrototype(object) {
     var proto = Object.getPrototypeOf(object);
     if (proto === Object.prototype) {
         return proto;
     } else {
         return Object.getPrototypeOf(proto);
+    }
+}
+
+function removeItem(/* Array */ list, object) {
+    var index = list.indexOf(object);
+    if (index >= 0) {
+        list.splice(index, 1);
     }
 }
 

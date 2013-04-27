@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>VN</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- <link rel="stylesheet" href="animations.css"/> -->
+        <style type="text/css">
+            /*#target2 {
+              -moz-animation-duration: 3s;
+              -webkit-animation-duration: 3s;
+              -moz-animation-name: slidein;
+              -webkit-animation-name: slidein;
+            }*/
+            
+            @-moz-keyframes move {
+              from {
+                -moz-transform: translate(-100%, 0);
+              }
+              
+              to {
+                -moz-transform: translate(0, 0);
+              }
+            }
+            
+            @-webkit-keyframes move {
+              from {
+                -webkit-transform: translate(100%, 0);
+              }
+              
+              to {
+                -webkit-transform: translate(0, 0);
+              }
+            }
+            
+            @-webkit-keyframes blink {
+              from {
+                opacity: 1;
+              }
+              
+              50% {
+                opacity: 0;
+              }
+              
+              to {
+                opacity: 1;
+              }
+            }
+            
+            @-moz-keyframes blink {
+              from {
+                opacity: 1;
+              }
+              
+              50% {
+                opacity: 0;
+              }
+              
+              to {
+                opacity: 1;
+              }
+            }
+            
+            @-webkit-keyframes jump {
+              from {
+                transform: translate(0, 0);
+                -webkit-transform: translate(0, 0);
+              }
+              50% {
+                transform: translate(0, 100);
+                -webkit-transform: translate(0, -30%);
+              }
+              to {
+                transform: translate(0, 0);
+                -webkit-transform: translate(0, 0);
+              }
+            }
+            
+            @-moz-keyframes jump {
+              from {
+                transform: translate(0, 0);
+                -moz-transform: translate(0, 0);
+              }
+              50% {
+                transform: translate(0, 100);
+                -moz-transform: translate(0, -30%);
+              }
+              to {
+                transform: translate(0, 0);
+                -moz-transform: translate(0, 0);
+              }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="stage">
+            <div id="background"></div>
+            <div id="foreground"></div>
+        </div>
+		
+        <script src="lib/jquery-2.0.0b1.js"></script>
+
+        <script src="src/utils/helpers.js"></script>
+        <script src="src/utils/orderedmap.js"></script>
+        
+        <script src="src/graphics/animation.js"></script>
+        <script src="src/graphics/cssanimation.js"></script>
+        <script src="src/graphics/cssanimations.js"></script>
+        <script src="src/graphics/sprite/sprite.js"></script>
+        <script src="src/graphics/sprite/imgsprite.js"></script>
+        <script src="src/graphics/sprite/sprites.js"></script>
+        <script src="src/graphics/sprite/character.js"></script>
+        <script src="src/graphics/sprite/background.js"></script>
+        <script src="src/graphics/stage.js"></script>
+<script>
+var stage = null;
+
+function init() {
+    stage = new Stage($("#stage"));
+    
+    
+    setTimeout(function () {
+        stage.background.add(new Background("home_1", "home_1", "img/bg/BG01_01.jpg"));
+    }, 500);
+    
+    setTimeout(function () {
+        stage.foreground.add(new Character("kakeru", "kakeru", "img/char/kakeru_1_0.png"));
+    }, 1000);
+    
+    setTimeout(function () {
+        stage.foreground.add(new Character("kotori", "kotori", "img/char/kotori_1_0_0.bmp"));
+    }, 2000);
+    
+    setTimeout(function () {
+        stage.foreground.remove("kakeru");
+    }, 3000);
+    
+    setTimeout(function () {
+        stage.background.remove("home_1");
+    }, 3500);
+    
+    setTimeout(function () {
+        stage.foreground.remove("kotori");
+    }, 4000);
+    
+    //
+    
+    setTimeout(function () {
+        stage.foreground.get("kakeru").animations.add(new CssAnimation("jumping", "jump", "0.5s", "3"));
+        stage.foreground.get("kakeru").animations.add(new CssAnimation("blinking", "blink", "0.25s", "3"));
+        stage.foreground.get("kakeru").animations.start();
+    }, 1500);
+}
+
+$(window).load(init);
+</script>
+
+    </body>
+</html>
