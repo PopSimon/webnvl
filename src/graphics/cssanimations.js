@@ -46,16 +46,22 @@ CssAnimations.prototype = {
         element.css("animation-name", names);
         element.css("-webkit-animation-name", names);
         element.css("-moz-animation-name", names);
+        element.css("-ms-animation-name", names);
+        element.css("-o-animation-name", names);
         
         var durations = this.__durations__;
         element.css("animation-duration", durations);
         element.css("-webkit-animation-duration", durations);
         element.css("-moz-animation-duration", durations);
+        element.css("-ms-animation-duration", durations);
+        element.css("-o-animation-duration", durations);
         
         var iterationCounts = this.__iterationCounts__;
         element.css("animation-iteration-count", iterationCounts);
         element.css("-webkit-animation-iteration-count", iterationCounts);
         element.css("-moz-animation-iteration-count", iterationCounts);
+        element.css("-ms-animation-iteration-count", iterationCounts);
+        element.css("-o-animation-iteration-count", iterationCounts);
     },
     remove: function (/* CssAnimation */ animation) {
         var index = OrderedMaps.indexOf(this, animation.id);
