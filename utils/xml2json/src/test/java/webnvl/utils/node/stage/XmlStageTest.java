@@ -7,8 +7,9 @@ import javax.xml.bind.JAXBException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import webnvl.utils.nodes.stage.BgSprite;
-import webnvl.utils.nodes.stage.CharSprite;
+import webnvl.utils.nodes.stage.AddSprite;
+import webnvl.utils.nodes.stage.Animation;
+import webnvl.utils.nodes.stage.Sprite;
 import webnvl.utils.nodes.stage.Stage;
 
 public class XmlStageTest extends XmlTest {
@@ -22,7 +23,7 @@ public class XmlStageTest extends XmlTest {
 	public void noFgStageToXmlTest() throws JAXBException {
 		Stage stage = new Stage();
 		
-		stage.background.add(new BgSprite("testid", "testname", "test/bgsprite.jpg"));
+		stage.background.add(new AddSprite(new Sprite("testid", "image", "testname", "test/charsprite.jpg"), new Animation("animtest", "animtest", "testid")));
 		
 		m.marshal(stage, sw);
 
@@ -36,8 +37,8 @@ public class XmlStageTest extends XmlTest {
 	public void noBgStageToXmlTest() throws JAXBException {
 		Stage stage = new Stage();
 		
-		stage.foreground.add(new CharSprite("testid1", "testname1", "test/charsprite1.jpg"));
-		stage.foreground.add(new CharSprite("testid2", "testname2", "test/charsprite2.jpg"));
+		stage.foreground.add(new AddSprite(new Sprite("testid", "image", "testname", "test/charsprite.jpg"), new Animation("animtest", "animtest", "testid")));
+		stage.foreground.add(new AddSprite(new Sprite("testid", "video", "testname2", "test/vidsprite.webm")));
 		
 		m.marshal(stage, sw);
 

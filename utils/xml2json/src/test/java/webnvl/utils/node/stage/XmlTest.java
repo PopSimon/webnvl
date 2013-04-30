@@ -8,9 +8,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import webnvl.utils.nodes.stage.Animation;
-import webnvl.utils.nodes.stage.BgSprite;
-import webnvl.utils.nodes.stage.CharSprite;
-import webnvl.utils.nodes.stage.ImgSprite;
 import webnvl.utils.nodes.stage.Sprite;
 import webnvl.utils.nodes.stage.Stage;
 
@@ -23,10 +20,7 @@ public abstract class XmlTest {
 	public XmlTest() throws JAXBException {
 		context = JAXBContext.newInstance(
 				Animation.class, 
-				Sprite.class, 
-				ImgSprite.class, 
-				CharSprite.class,
-				BgSprite.class,
+				Sprite.class,
 				Stage.class);
 		m = context.createMarshaller();
 		um = context.createUnmarshaller();

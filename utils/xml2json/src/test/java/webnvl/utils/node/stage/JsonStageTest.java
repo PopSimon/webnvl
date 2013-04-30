@@ -3,9 +3,10 @@ package webnvl.utils.node.stage;
 import org.junit.Assert;
 import org.junit.Test;
 
+import webnvl.utils.nodes.stage.AddSprite;
 import webnvl.utils.nodes.stage.Animation;
-import webnvl.utils.nodes.stage.BgSprite;
-import webnvl.utils.nodes.stage.CharSprite;
+import webnvl.utils.nodes.stage.RemoveSprite;
+import webnvl.utils.nodes.stage.Sprite;
 import webnvl.utils.nodes.stage.Stage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,12 +17,14 @@ public class JsonStageTest extends JsonTest {
 	public void noBgStageToJsonTest() throws JsonProcessingException {
 		Stage stage = new Stage();
 		
-		stage.foreground.add(new CharSprite("testid1", "testname1", "test/charsprite1.jpg"));
-		stage.foreground.add(new CharSprite("testid2", "testname2", "test/charsprite2.jpg"));
+		stage.foreground.add(new AddSprite(new Sprite("testid1", "image", "testname", "test/charsprite.jpg"), new Animation("animtest", "animtest", "testid")));
+		stage.foreground.add(new RemoveSprite("testid2"));
 		
 		String result = mapper.writeValueAsString(stage);
-		String expected = "{\"foreground\":[{\"type\":\"charsprite\",\"id\":\"testid1\",\"name\":\"testname1\",\"path\":\"test/charsprite1.jpg\"},"
-		+ "{\"type\":\"charsprite\",\"id\":\"testid2\",\"name\":\"testname2\",\"path\":\"test/charsprite2.jpg\"}]}";
+		String expected = "{\"foreground\":[{\"type\":\"add\""
+		+ ",\"transition\":{\"id\":\"animtest\",\"name\":\"animtest\",\"element\":\"testid\"}"
+		+ ",\"sprite\":{\"id\":\"testid1\",\"type\":\"image\",\"name\":\"testname\",\"path\":\"test/charsprite.jpg\"}},"
+		+ "{\"type\":\"remove\",\"sprite\":\"testid2\"}]}";
 		
 		Assert.assertEquals(expected, result);
 	}
@@ -30,10 +33,10 @@ public class JsonStageTest extends JsonTest {
 	public void noFgStageToJsonTest() throws JsonProcessingException {
 		Stage stage = new Stage();
 		
-		stage.background.add(new BgSprite("testid", "testname", "test/bgsprite.jpg"));
+		stage.background.add(new RemoveSprite("testid2"));
 		
 		String result = mapper.writeValueAsString(stage);
-		String expected = "{\"background\":[{\"type\":\"bgsprite\",\"id\":\"testid\",\"name\":\"testname\",\"path\":\"test/bgsprite.jpg\"}]}";
+		String expected = "{\"background\":[{\"type\":\"remove\",\"sprite\":\"testid2\"}]}";
 		
 		Assert.assertEquals(expected, result);
 	}

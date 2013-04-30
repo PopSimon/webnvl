@@ -12,14 +12,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Stage {
 	@XmlElementWrapper(name = "background")
 	@XmlElements({
-        @XmlElement(name="bgsprite", type = BgSprite.class)
+        @XmlElement(name="add", type = AddSprite.class),
+        @XmlElement(name="remove", type = RemoveSprite.class)
     })
-	public List<Sprite> background = new LinkedList<Sprite>();
+	public List<SpriteEvent> background = new LinkedList<SpriteEvent>();
 	@XmlElementWrapper(name = "foreground")
 	@XmlElements({
-        @XmlElement(name="charsprite", type = BgSprite.class)
+        @XmlElement(name="add", type = AddSprite.class),
+        @XmlElement(name="remove", type = RemoveSprite.class)
     })
-	public List<Sprite> foreground = new LinkedList<Sprite>();
+	public List<SpriteEvent> foreground = new LinkedList<SpriteEvent>();
 	@XmlElementWrapper(name = "animations")
 	@XmlElements({
         @XmlElement(name="animation", type = Animation.class)
