@@ -1,11 +1,15 @@
 "use strict";
 
-function CssAnimation(/* string */ id, /* string */ name, /* string */ duration, /* string */ iterationCount) {
-    this.id = id;
-    this.name = name;
-    this.duration = duration || this.defaults.duration;
-    this.iterationCount = iterationCount || this.defaults.iterationCount;
+function CssAnimation(/* AnimationDesc */ animdesc) {
+    this.id = animdesc.id;
+    this.name = animdesc.name;
+    this.duration = animdesc.duration || this.defaults.duration;
+    this.iterationCount = animdesc.iterationCount || this.defaults.iterationCount;
     this.parent = null;
+	this.events = {
+		start: new EventSource(),
+		end: new EventSource()
+	};
 }
 CssAnimation.prototype = Object.create(Animation.prototype, {
     defaults: {
