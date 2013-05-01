@@ -1,12 +1,12 @@
 package webnvl.utils.nodes.stage;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "animation")
-public class Animation {
-	@XmlAttribute
-	public String id;
+@XmlSeeAlso(AnimationEvent.class)
+public class Animation extends AnimationEvent {
 	@XmlAttribute
 	public String name;
 	@XmlAttribute
@@ -24,10 +24,11 @@ public class Animation {
 		this.element = element;
 	}
 	
-	public Animation(String id, String name, String element, String duration, String itercount) {
+	public Animation(String id, String name, String element, String duration, String itercount, String delay) {
 		this(id, name, element);
 		this.duration = duration;
 		this.itercount = itercount;
+		this.delay = delay;
 	}
 	
 	@Override

@@ -20,7 +20,7 @@ public class XmlAnimationTest extends XmlTest {
 		m.marshal(anim, sw);
 		
 		String result = sw.toString();
-		String expected = "<animation id=\"animtest\" name=\"animtest\" element=\"testelement\"/>";
+		String expected = "<animation name=\"animtest\" element=\"testelement\" id=\"animtest\"/>";
 		
 		Assert.assertEquals(expected, result);
 	}
