@@ -5,6 +5,7 @@ function CssAnimation(/* AnimationDesc */ animdesc) {
     this.name = animdesc.name;
     this.duration = animdesc.duration || this.defaults.duration;
     this.iterationCount = animdesc.iterationCount || this.defaults.iterationCount;
+	this.element = null;
     this.parent = null;
 	this.events = {
 		start: new EventSource(),

@@ -1,12 +1,27 @@
 "use strict";
 
-function CssAnimations(/* HtmlElement */ element) {
+function CssAnimations(/* HtmlElement */ item) {
     OrderedMaps.construct(this);
 
-    this.__element__ = element;
+    this.item = item;
     this.__names__ = [];
     this.__durations__ = [];
     this.__iterationCounts__ = [];
+	
+	var anims = this;
+	
+	var animstart = function (/* */ AnimationEvent e) {
+		var animation = anims.get(e.animationName);
+		animation.events.start.shoot();
+	};
+	
+	var animend = function (/* */ AnimationEvent e) {
+		var animation = anims.get(e.animationName);
+		animation.events.end.shoot();
+	}
+	
+	item.element.bind('animationstart', animstart, false);
+	item.element.bind('animationend', animend, false);
 }
 
 CssAnimations.prototype = {
@@ -41,7 +56,7 @@ CssAnimations.prototype = {
         console.log(this.__durations__);
         console.log(this.__iterationCounts__);
         
-        var element = this.__element__;
+        var element = this.item.element;
         var names = this.__names__;
         element.css("animation-name", names);
         element.css("-webkit-animation-name", names);
@@ -62,6 +77,8 @@ CssAnimations.prototype = {
         element.css("-moz-animation-iteration-count", iterationCounts);
         element.css("-ms-animation-iteration-count", iterationCounts);
         element.css("-o-animation-iteration-count", iterationCounts);
+		
+		
     },
     remove: function (/* CssAnimation */ animation) {
         var index = OrderedMaps.indexOf(this, animation.id);
