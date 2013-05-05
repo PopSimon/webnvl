@@ -1,7 +1,7 @@
 "use strict";
 
-function Animation(/* string */ id) {
-    this.id = id;
+function Animation(/* AnimationDesc */ animdesc) {
+    return new CssAnimation(animdesc);
 }
 Animation.prototype = Object.create(Object.prototype, {
     start: {
@@ -14,6 +14,11 @@ Animation.prototype = Object.create(Object.prototype, {
     },
     stop: {
         value: function () {
+        }
+    },
+    remove: {
+        value: function () {
+            this.parent.remove(this.name);
         }
     }
 });

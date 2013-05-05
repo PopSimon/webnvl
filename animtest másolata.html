@@ -36,6 +36,16 @@
               }
             }
             
+            @-ms-keyframes move {
+              from {
+                -ms-transform: translate(100%, 0);
+              }
+              
+              to {
+                -ms-transform: translate(0, 0);
+              }
+            }
+            
             @-webkit-keyframes blink {
               from {
                 opacity: 1;
@@ -94,15 +104,12 @@
             
             @-webkit-keyframes jump {
               from {
-                transform: translate(0, 0);
                 -webkit-transform: translate(0, 0);
               }
               50% {
-                transform: translate(0, 100);
                 -webkit-transform: translate(0, -30%);
               }
               to {
-                transform: translate(0, 0);
                 -webkit-transform: translate(0, 0);
               }
             }
@@ -120,20 +127,19 @@
                 transform: translate(0, 0);
                 -moz-transform: translate(0, 0);
               }
+            }
               
-              @-ms-keyframes jump {
+            @-ms-keyframes jump {
               from {
-                transform: translate(0, 0);
                 -ms-transform: translate(0, 0);
               }
               50% {
-                transform: translate(0, 100);
                 -ms-transform: translate(0, -30%);
               }
               to {
-                transform: translate(0, 0);
                 -ms-transform: translate(0, 0);
               }
+            }
               
             @-o-keyframes jump {
               from {
@@ -157,13 +163,14 @@
             <div id="foreground"></div>
         </div>
 		
-        <script src="lib/jquery-2.0.0b1.js"></script>
-
+        <script src="lib/jquery-2.0.0.js"></script>
+        <script src="src/utils/events.js"></script>
         <script src="src/utils/helpers.js"></script>
         <script src="src/utils/orderedmap.js"></script>
         
         <script src="src/graphics/animation.js"></script>
         <script src="src/graphics/cssanimation.js"></script>
+        <script src="src/graphics/csstransition.js"></script>
         <script src="src/graphics/cssanimations.js"></script>
         <script src="src/graphics/sprite/sprite.js"></script>
         <script src="src/graphics/sprite/imgsprite.js"></script>
@@ -177,37 +184,64 @@ var stage = null;
 function init() {
     stage = new Stage($("#stage"));
     
-    
     setTimeout(function () {
-        stage.background.add(new Background("home_1", "home_1", "img/bg/BG01_01.jpg"));
+        stage.background.add(new Sprite({
+            type: "image",
+            id: "home_1",
+            path: "img/bg/BG01_01.jpg"
+        }));
     }, 500);
     
     setTimeout(function () {
-        stage.foreground.add(new Character("kakeru", "kakeru", "img/char/kakeru_1_0.png"));
+        stage.foreground.add(new Sprite({
+            type: "image",
+            id: "kakeru",
+            path: "img/char/kakeru_1_0.png"
+        }));
     }, 1000);
     
     setTimeout(function () {
-        stage.foreground.add(new Character("kotori", "kotori", "img/char/kotori_1_0_0.bmp"));
+        stage.foreground.add(new Sprite({
+            type: "image",
+            id: "kotori",
+            path: "img/char/kotori_1_0_0.bmp"
+        }), new CssTransition({
+            id: "move",
+            name: "move",
+            duration: "1s"
+        }));
     }, 2000);
     
     setTimeout(function () {
         stage.foreground.remove("kakeru");
-    }, 3000);
+    }, 10000);
     
     setTimeout(function () {
         stage.background.remove("home_1");
     }, 3500);
     
     setTimeout(function () {
-        stage.foreground.remove("kotori");
+        stage.foreground.remove("kotori", new CssTransition({
+            name: "move",
+            direction: "reverse",
+            duration: "1s"
+        }));
     }, 4000);
     
     //
     
     setTimeout(function () {
-        stage.foreground.get("kakeru").animations.add(new CssAnimation("jumping", "jump", "0.5s", "3"));
-        stage.foreground.get("kakeru").animations.add(new CssAnimation("blinking", "blink", "0.25s", "3"));
-        stage.foreground.get("kakeru").animations.start();
+        stage.foreground.get("kakeru").animations.add(new CssAnimation({
+            name: "jump",
+            delay: "0.25s",
+            duration: "1s",
+            iterationCount: "3"}));
+        stage.foreground.get("kakeru").animations.add(new CssAnimation({
+            name: "blink",
+            delay: "0.5s",
+            duration: "0.5s",
+            iterationCount: "3"}));
+        // stage.foreground.get("kakeru").animations.start();
     }, 1500);
 }
 

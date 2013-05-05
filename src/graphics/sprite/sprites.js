@@ -1,7 +1,7 @@
 "use strict";
 
 function Sprites(/* string */ id, /* HtmlElement */ element, /* Stage */ stage) {
-    Sprite.call(this, id, element);
+    Sprite.prototype.constructor.call(this, id, element);
     OrderedMaps.construct(this);
 	this.stage = stage;
 }
@@ -13,13 +13,11 @@ Sprites.prototype = Object.create(Sprite.prototype, {
 		}
 	},
     add: {
-        value: function (/* SpriteDesc */ spritedesc, /* AnimationDesc */ transitiondesc, /* number */ delay) {
+        value: function (/* Sprite */ sprite, /* Transition */ transition, /* number */ delay) {
 			delay = delay || this.defaults.addDelay;
 			
 			setTimeout((function () {
-				var sprite = new Sprite(spritedesc);
-				if (transitiondesc) {
-					var transition = new Animation(transitiondesc);
+				if (transition) {
 					sprite.animations.add(transition);
 				}
 				OrderedMaps.add(this, sprite.id, sprite);
@@ -28,21 +26,19 @@ Sprites.prototype = Object.create(Sprite.prototype, {
         }
     },
     remove: {
-        value: function (/* string */ id, /* AnimationDesc */ transitiondesc, /* number */ delay) {
+        value: function (/* string */ id, /* Transition */ transition, /* number */ delay) {
 			delay = delay || this.defaults.removeDelay;
 			
 			setTimeout((function () {
-				var sprite = new Sprite(spritedesc);
-				
+                var sprite = this.get(id);
 				var removefun = (function () {
 					var sprite = OrderedMaps.remove(this, id);
 					sprite.element.remove();
 				}).bind(this);
 				
-				if (transitiondesc) {
-					var transition = new Animation(transitiondesc);
-					transition.events.end(removefun);
-					sprite.animations.add(transition);
+				if (transition) {
+                    transition.events.end.add(removefun);
+                    sprite.animations.add(transition);
 				} else {
 					removefun();
 				}

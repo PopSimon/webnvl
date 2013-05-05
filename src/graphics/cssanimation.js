@@ -1,11 +1,13 @@
 "use strict";
 
 function CssAnimation(/* AnimationDesc */ animdesc) {
-    this.id = animdesc.id;
     this.name = animdesc.name;
-    this.duration = animdesc.duration || this.defaults.duration;
-    this.iterationCount = animdesc.iterationCount || this.defaults.iterationCount;
-	this.element = null;
+    this.duration = animdesc.duration || null;
+    this.iterationCount = animdesc.iterationCount || null;
+    this.delay = animdesc.delay || null;
+    this.direction = animdesc.direction || null;
+    this.fillMode = animdesc.fillMode || null;
+    this.playState = animdesc.playState || null;
     this.parent = null;
 	this.events = {
 		start: new EventSource(),
@@ -13,13 +15,6 @@ function CssAnimation(/* AnimationDesc */ animdesc) {
 	};
 }
 CssAnimation.prototype = Object.create(Animation.prototype, {
-    defaults: {
-        value: {
-            duration: "2s",
-            iterationCount: "1"
-        },
-        enumerable: true
-    },
     pause : {
         value: function () {
         }
@@ -27,6 +22,18 @@ CssAnimation.prototype = Object.create(Animation.prototype, {
     stop: {
         value: function () {
             this.parent.remove(this);
+        }
+    },
+    toString: {
+        value: function () {
+            return this.name + " "
+                + (this.duration ? " " + this.duration : "")
+                + (this.timingFunction ? " " + this.timingFunction : "")
+                + (this.delay ? " " + this.delay : "")
+                + (this.iterationCount ? " " + this.iterationCount : "")
+                + (this.direction ? " " + this.direction : "")
+                + (this.fillMode ? " " + this.fillMode : "")
+                + (this.playState ? " " + this.playState : "");
         }
     }
 });

@@ -1,19 +1,17 @@
 "use strict";
 
-function ImgSprite(/* string */ id, /* string */ name, /* Url */ path) {
-    this.name = name;
-    this.path = path;
-    Sprite.call(this, id, this.DOM(id, name, path, this.cssClass));
+function ImgSprite(/* SpriteDesc */ sprdesc) {
+    this.path = sprdesc.path;
+    Sprite.prototype.constructor.call(this, sprdesc, this.DOM(sprdesc.id, sprdesc.path, this.cssClass));
 }
 ImgSprite.prototype = Object.create(Sprite.prototype, {
     DOM: {
-        value: function (/* string */ id, /* string */ name, /* Url */ path, /* string */ cssClass) {
+        value: function (/* SpriteDesc */ sprdesc) {
             var img = new Image();
-            img.src = path;
+            img.src = this.path;
             img = $(img);
-            img.addClass(cssClass);
-            img.attr("data-id", id);
-            img.attr("data-name", name);
+            sprdesc.cssClass ? img.addClass(sprdesc.cssClass) : "";
+            img.attr("data-id", sprdesc.id);
             return img;
         },
         enumerable: true
