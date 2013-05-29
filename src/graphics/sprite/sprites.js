@@ -50,5 +50,21 @@ Sprites.prototype = Object.create(Sprite.prototype, {
         value: function (/* string */ id) {
             return OrderedMaps.get(this, id);
         }
-    }
+    },
+	update: {
+		value: function (/* SpritesDesc */ desc) {
+			if (desc.add) {
+				for (var i = 0; i < desc.add.length(); ++i) {
+					var item = desc.add[i];
+					this.add(new Sprite(item.sprite), item.transition, item.delay);
+				}
+			}
+			if (desc.remove) {
+				for (var i = 0; i < desc.remove.length(); ++i) {
+					var item = desc.remove[i];
+					this.remove(item.sprite, item.transition, item.delay);
+				}
+			}
+		}
+	}
 });

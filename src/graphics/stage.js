@@ -6,4 +6,17 @@ function Stage(/* HtmlElement */ element) {
     this.foreground = new Sprites("foreground", element.find("#foreground"));
 }
 Stage.prototype = Object.create(Sprite.prototype, {
+	update: {
+		value: function (/* StageDesc */ desc) {
+			if(desc.foreground) {
+				this.foreground.update(desc.foreground);
+			}
+			if(desc.background) {
+				this.background.update(desc.background);
+			}
+			if(desc.animations) {
+				this.animations.update(desc.animations);
+			}
+		}
+	}
 });
